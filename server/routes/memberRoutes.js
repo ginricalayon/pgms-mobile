@@ -21,5 +21,25 @@ router.get(
 router.put("/edit-profile", authMiddleware, memberController.editProfile);
 router.put("/change-password", authMiddleware, memberController.changePassword);
 router.put("/change-username", authMiddleware, memberController.changeUsername);
+router.get(
+  "/membership-rates",
+  authMiddleware,
+  memberController.getMembershipRates
+);
+router.get(
+  "/personal-trainer-rate",
+  authMiddleware,
+  memberController.getPersonalTrainerRates
+);
+router.get(
+  "/available-trainers",
+  authMiddleware,
+  memberController.getAvailableTrainers
+);
+router.get(
+  "/trainer-available-schedules",
+  authMiddleware,
+  memberController.getTrainerAvailableSchedules
+);
 
 module.exports = router;

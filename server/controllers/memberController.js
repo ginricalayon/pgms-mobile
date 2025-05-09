@@ -544,3 +544,111 @@ exports.getMembershipStatus = async (req, res) => {
     });
   }
 };
+
+exports.getMembershipRates = async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT r.rateId, r.name, r.cost, r.validityId, v.validity FROM gym_rates r JOIN rate_validity v ON r.validityId = v.validityId WHERE v.validity != '1 Day'"
+    );
+    res.status(200).json({
+      success: true,
+      rates: rows,
+    });
+  } catch (error) {
+    console.log("Get membership rates error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching membership rates",
+    });
+  }
+};
+
+exports.getPersonalTrainerRates = async (req, res) => {
+  try {
+    const validityId = req.params.validityId || req.query.validityId;
+
+    if (!validityId) {
+      return res.status(400).json({
+        success: false,
+        message: "ValidityId is required",
+      });
+    }
+
+    const [rows] = await db.execute(
+      "SELECT p.ptRateId, p.validityId, p.amount, v.validity FROM pt_rate p JOIN rate_validity v ON p.validityId = v.validityId WHERE v.validityId = ?",
+      [validityId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      rate: rows[0],
+    });
+  } catch (error) {
+    console.log("Get personal trainer rates error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching personal trainer rates",
+    });
+  }
+};
+
+exports.getAvailableTrainers = async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT info.ptId, info.firstName, info.lastName, info.gender, info.address, info.phoneNumber, trainer.isAvailable FROM pt_info info JOIN personal_trainer trainer ON info.ptId = trainer.ptId WHERE trainer.isAvailable = 1"
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No available trainers found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      trainers: rows,
+    });
+  } catch (error) {
+    console.log("Get available trainers error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching available trainers",
+    });
+  }
+};
+
+exports.getTrainerAvailableSchedules = async (req, res) => {
+  try {
+    const trainerId = req.query.trainerId;
+
+    if (!trainerId) {
+      return res.status(400).json({
+        success: false,
+        message: "TrainerId is required",
+      });
+    }
+
+    const [rows] = await db.execute(
+      "SELECT s.ptScheduleId, s.ptId, s.scheduleDate, s.startTime, s.endTime, s.isAvailable FROM pt_schedule s WHERE s.ptId = ? AND s.isAvailable = 1",
+      [trainerId]
+    );
+
+    res.status(200).json({
+      success: true,
+      schedules: rows,
+    });
+  } catch (error) {
+    console.log("Get trainer available schedules error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching trainer available schedules",
+    });
+  }
+};

@@ -15,7 +15,7 @@ import { memberService } from "../../services/api";
 import { formatDate } from "../../utils/dateUtils";
 import { LoadingView } from "../../components/common/LoadingView";
 import { ErrorView } from "../../components/common/ErrorView";
-
+import { Button } from "../../components/common/Button";
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -287,6 +287,16 @@ export default function Dashboard() {
               </View>
             </View>
           </View>
+
+          {membershipDetailsData?.user?.status === "Expired" ||
+          membershipDetailsData?.user?.status === "Cancelled" ? (
+            <View className="mt-4">
+              <Button
+                title="Renew Membership"
+                onPress={() => router.push("/screens/renew/RateSelection")}
+              />
+            </View>
+          ) : null}
         </View>
 
         <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">

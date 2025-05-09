@@ -27,6 +27,11 @@ exports.login = async (req, res) => {
 
     const user = rows[0];
 
+    const [customerRows] = await db.execute(
+      "SELECT firstName, lastName FROM customer WHERE customerId = ?",
+      [user.customerId]
+    );
+
     if (password !== user.password) {
       return res.status(401).json({
         success: false,
@@ -40,9 +45,11 @@ exports.login = async (req, res) => {
         membershipId: user.membershipId,
         customerId: user.customerId,
         username: user.username,
+        firstName: customerRows[0].firstName,
+        lastName: customerRows[0].lastName,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
@@ -53,6 +60,8 @@ exports.login = async (req, res) => {
         membershipId: user.membershipId,
         customerId: user.customerId,
         username: user.username,
+        firstName: customerRows[0].firstName,
+        lastName: customerRows[0].lastName,
       },
       token,
     });

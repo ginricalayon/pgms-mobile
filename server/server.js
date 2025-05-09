@@ -21,6 +21,7 @@ async function testDBConnection() {
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const memberRoutes = require("./routes/memberRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 // Initialize express app
 const app = express();
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/member", memberRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {

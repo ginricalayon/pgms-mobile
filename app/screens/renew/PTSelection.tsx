@@ -1,0 +1,167 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+} from "react-native";
+import { Stack, useRouter, useLocalSearchParams } from "expo-router";
+import { Container } from "../../components/common/Container";
+import { Button } from "../../components/common/Button";
+import { Ionicons } from "@expo/vector-icons";
+import { memberService } from "../../services/api";
+import { ErrorView } from "@/app/components/common/ErrorView";
+import { LoadingView } from "@/app/components/common/LoadingView";
+
+interface Trainer {
+  ptId: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  address: string;
+  phoneNumber: string;
+  isAvailable: boolean;
+}
+
+export default function SelectPersonalTrainer() {
+  const router = useRouter();
+  const { rateId, ptRateId, totalAmount, withPT } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchPersonalTrainers();
+  }, []);
+
+  const fetchPersonalTrainers = async () => {
+    try {
+      setLoading(true);
+      const trainersData = await memberService.getAvailableTrainers();
+      setTrainers(trainersData);
+      setError(null);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTrainerSelection = (trainer: Trainer) => {
+    setSelectedTrainer(trainer);
+  };
+
+  const handleNext = () => {
+    if (!selectedTrainer) {
+      return;
+    }
+
+    router.push({
+      pathname: "/screens/renew/ScheduleSelection",
+      params: {
+        rateId: rateId,
+        trainerId: selectedTrainer.ptId,
+        totalAmount: totalAmount,
+        withPT: withPT,
+        ptRateId: ptRateId,
+      },
+    });
+  };
+
+  if (loading) {
+    return <LoadingView message="Loading trainers..." />;
+  }
+
+  if (error) {
+    return (
+      <ErrorView
+        title="We couldn't load trainers"
+        message={error}
+        onRetry={fetchPersonalTrainers}
+      />
+    );
+  }
+
+  return (
+    <Container>
+      <Stack.Screen
+        options={{
+          title: "Select Trainer",
+          headerShown: true,
+          headerBackTitle: "Back",
+        }}
+      />
+
+      <View className="flex-1 px-4 py-6">
+        <View className="mb-6">
+          <Text className="text-text-primary text-2xl font-bold mb-2">
+            Choose Your Personal Trainer
+          </Text>
+          <Text className="text-text-secondary">
+            Select a personal trainer who will guide you through your fitness
+            journey.
+          </Text>
+        </View>
+
+        <View className="flex-row items-center mb-4">
+          <View className="h-8 w-8 rounded-full bg-accent items-center justify-center mr-2">
+            <Text className="text-white font-bold">2</Text>
+          </View>
+          <Text className="text-text-primary font-medium">
+            Step 2 of 4: Trainer Selection
+          </Text>
+        </View>
+
+        <ScrollView className="flex-1">
+          {trainers.length > 0 ? (
+            trainers.map((trainer) => (
+              <TouchableOpacity
+                key={trainer.ptId}
+                className={`mb-4 p-4 rounded-xl border ${
+                  selectedTrainer?.ptId === trainer.ptId
+                    ? "border-accent bg-accent/10"
+                    : "border-light-200 bg-white"
+                }`}
+                onPress={() => handleTrainerSelection(trainer)}
+              >
+                <View className="flex-row items-center">
+                  <View className="flex-1">
+                    <Text className="text-text-primary font-bold text-lg">
+                      {trainer.firstName} {trainer.lastName}
+                    </Text>
+                    <Text className="text-text-secondary mt-1">
+                      {trainer.gender}
+                    </Text>
+                    <Text className="text-text-secondary mt-1">
+                      {trainer.address}
+                    </Text>
+                    <Text className="text-text-secondary mt-1">
+                      {trainer.phoneNumber}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View className="flex-1 justify-center items-center p-8">
+              <Text className="text-text-secondary text-center">
+                No trainers available at the moment. Please try again later.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+
+        <View className="mt-6 space-y-3">
+          <Button
+            title="Next Step"
+            onPress={handleNext}
+            disabled={!selectedTrainer}
+          />
+        </View>
+      </View>
+    </Container>
+  );
+}

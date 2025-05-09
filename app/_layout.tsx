@@ -50,6 +50,22 @@ export default function RootLayout() {
             name="screens/VerifyPhoneScreen"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="screens/renew/RateSelection"
+            options={{ headerShown: true, title: "Renew Membership" }}
+          />
+          <Stack.Screen
+            name="screens/renew/PTSelection"
+            options={{ headerShown: true, title: "Select Trainer" }}
+          />
+          <Stack.Screen
+            name="screens/renew/ScheduleSelection"
+            options={{ headerShown: true, title: "Select Schedule" }}
+          />
+          <Stack.Screen
+            name="screens/renew/Payment"
+            options={{ headerShown: true, title: "Payment" }}
+          />
         </Stack>
       </AuthProvider>
     </SafeAreaProvider>

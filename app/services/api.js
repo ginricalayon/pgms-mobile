@@ -169,7 +169,159 @@ export const memberService = {
       const response = await api.get("/member/transactions");
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getMembershipRates: async () => {
+    try {
+      const response = await api.get("/member/membership-rates");
+      return response.data.rates;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getPersonalTrainerRates: async (validityId) => {
+    try {
+      const response = await api.get(
+        `/member/personal-trainer-rate?validityId=${validityId}`
+      );
+      return response.data.rate;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getAvailableTrainers: async () => {
+    try {
+      const response = await api.get("/member/available-trainers");
+      return response.data.trainers;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getTrainerAvailableSchedules: async (trainerId) => {
+    try {
+      const response = await api.get(
+        `/member/trainer-available-schedules?trainerId=${trainerId}`
+      );
+      return response.data.schedules;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+};
+
+export const paymentService = {
+  getRateDetails: async (rateId) => {
+    try {
+      const response = await api.get(`/payment/rate-details?rateId=${rateId}`);
+      return response.data.rate;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getTrainerDetails: async (trainerId) => {
+    try {
+      const response = await api.get(
+        `/payment/trainer-details?trainerId=${trainerId}`
+      );
+      return response.data.trainer;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getTrainerRate: async (ptRateId) => {
+    try {
+      const response = await api.get(
+        `/payment/trainer-rate?ptRateId=${ptRateId}`
+      );
+      return response.data.trainerRate;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  getSchedulesDetails: async (scheduleIds) => {
+    try {
+      if (!scheduleIds) {
+        console.error("No scheduleIds provided to getSchedulesDetails");
+        return [];
+      }
+
+      const response = await api.get(
+        `/payment/schedules-details?scheduleIds=${scheduleIds}`
+      );
+
+      if (
+        response.data &&
+        response.data.success &&
+        Array.isArray(response.data.schedules)
+      ) {
+        return response.data.schedules;
+      } else {
+        console.log("Unexpected response format:", response.data);
+        return [];
+      }
+    } catch (error) {
+      console.log("Error in getSchedulesDetails:", error);
+      return [];
+    }
+  },
+
+  renewMembership: async (rateId, trainerId, endDate) => {
+    try {
+      const response = await api.put("/payment/renew-membership", {
+        rateId,
+        trainerId,
+        endDate,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  insertIntoTransaction: async (rateId, totalAmount) => {
+    try {
+      const response = await api.post("/payment/insert-into-transaction", {
+        rateId,
+        totalAmount,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  insertIntoMemberSchedule: async (trainerId, scheduleIds) => {
+    try {
+      const response = await api.post("/payment/insert-into-member-schedule", {
+        trainerId,
+        scheduleIds,
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
+    }
+  },
+
+  updatePtScheduleAvailability: async (scheduleIds, trainerId) => {
+    try {
+      const response = await api.put(
+        "/payment/update-pt-schedule-availability",
+        {
+          scheduleIds,
+          trainerId,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Network error" };
     }
   },
 };
