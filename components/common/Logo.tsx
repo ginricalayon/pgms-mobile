@@ -16,7 +16,7 @@ export function Logo({ size = "medium", style }: LogoProps) {
   return (
     <View>
       <Image
-        source={require("../../../assets/images/logo.png")}
+        source={require("../../assets/images/logo.png")}
         className={sizeClass[size]}
         style={style}
         resizeMode="contain"

@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import Checkbox from "expo-checkbox";
 import { Stack, useRouter } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { memberService } from "../../services/api";
-import { LoadingView } from "@/app/components/common/LoadingView";
-import { ErrorView } from "@/app/components/common/ErrorView";
+import { Container } from "../../../components/common/Container";
+import { Button } from "../../../components/common/Button";
+import { memberService } from "../../../services";
+import { LoadingView } from "../../../components/common/LoadingView";
+import { ErrorView } from "../../../components/common/ErrorView";
 import Decimal from "decimal.js";
 
 interface Rate {

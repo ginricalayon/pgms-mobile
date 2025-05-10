@@ -8,14 +8,15 @@ import {
 } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { useAuth } from "../../context/AuthContext";
+import { Container } from "../../../components/common/Container";
+import { useAuth } from "../../../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../services/api";
-import { formatDate } from "../../utils/dateUtils";
-import { LoadingView } from "../../components/common/LoadingView";
-import { ErrorView } from "../../components/common/ErrorView";
-import { Button } from "../../components/common/Button";
+import { memberService } from "../../../services";
+import { formatDate } from "../../../utils/dateUtils";
+import { LoadingView } from "../../../components/common/LoadingView";
+import { ErrorView } from "../../../components/common/ErrorView";
+import { Button } from "../../../components/common/Button";
+
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -205,7 +206,7 @@ export default function Dashboard() {
     <Container>
       <ScrollView
         className={`flex-1 px-4 py-6 ${
-          Platform.OS === "android" ? "mb-24" : "mb-0"
+          Platform.OS === "android" ? "mb-24" : "mb-16"
         }`}
         refreshControl={
           <RefreshControl
@@ -265,35 +266,52 @@ export default function Dashboard() {
                   {membershipDetailsData?.user?.status}
                 </Text>
               </View>
-              <View className="mt-3">
-                <View className="flex-row justify-between mb-1">
-                  <Text className="text-text-secondary text-sm">
-                    {getRemainingDays()}
-                  </Text>
-                  <Text className="text-text-secondary text-sm">
-                    {calculateMembershipProgress()}%
-                  </Text>
+              {membershipDetailsData?.user?.status !== "Cancelled" && (
+                <View className="mt-3">
+                  <View className="flex-row justify-between mb-1">
+                    <Text className="text-text-secondary text-sm">
+                      {getRemainingDays()}
+                    </Text>
+                    <Text className="text-text-secondary text-sm">
+                      {calculateMembershipProgress()}%
+                    </Text>
+                  </View>
+                  <View className="h-2 bg-light-200 rounded-full overflow-hidden">
+                    <View
+                      style={{
+                        width: `${calculateMembershipProgress()}%`,
+                        backgroundColor: getMembershipStatusHexColor(),
+                        height: "100%",
+                        borderRadius: 9999,
+                      }}
+                    />
+                  </View>
                 </View>
-                <View className="h-2 bg-light-200 rounded-full overflow-hidden">
-                  <View
-                    style={{
-                      width: `${calculateMembershipProgress()}%`,
-                      backgroundColor: getMembershipStatusHexColor(),
-                      height: "100%",
-                      borderRadius: 9999,
-                    }}
-                  />
-                </View>
-              </View>
+              )}
             </View>
           </View>
 
           {membershipDetailsData?.user?.status === "Expired" ||
           membershipDetailsData?.user?.status === "Cancelled" ? (
-            <View className="mt-4">
+            <View className="mt-6 bg-light-100 rounded-lg p-4 border border-light-200">
+              <View className="flex-row items-center mb-3">
+                <View className="bg-accent/10 p-2 rounded-lg mr-3">
+                  <Ionicons name="refresh-circle" size={24} color="green" />
+                </View>
+                <View>
+                  <Text className="text-text-primary font-bold text-lg">
+                    Membership {membershipDetailsData?.user?.status}
+                  </Text>
+                  <Text className="text-text-secondary">
+                    Renew your membership to continue enjoying our services
+                  </Text>
+                </View>
+              </View>
               <Button
                 title="Renew Membership"
                 onPress={() => router.push("/screens/renew/RateSelection")}
+                icon={<Ionicons name="arrow-forward" size={20} color="white" />}
+                fullWidth
               />
             </View>
           ) : null}

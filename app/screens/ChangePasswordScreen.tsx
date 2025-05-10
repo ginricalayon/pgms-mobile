@@ -9,12 +9,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Container } from "../components/common/Container";
-import { Button } from "../components/common/Button";
-import { InputField } from "../components/common/InputField";
-import { memberService } from "../services/api";
+import { Container } from "../../components/common/Container";
+import { Button } from "../../components/common/Button";
+import { InputField } from "../../components/common/InputField";
+import { memberService } from "../../services";
 import { Ionicons } from "@expo/vector-icons";
-import { ConfirmationModal } from "../components/common/ConfirmationModal";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
@@ -22,7 +21,6 @@ export default function ChangePasswordScreen() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [errors, setErrors] = useState({
     currentPassword: "",
@@ -113,14 +111,25 @@ export default function ChangePasswordScreen() {
       return;
     }
 
-    // Show confirmation modal instead of immediately submitting
-    setShowConfirmModal(true);
+    Alert.alert(
+      "Change Password",
+      "Are you sure you want to change your password?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Save",
+          onPress: () => confirmPasswordChange(),
+        },
+      ]
+    );
   };
 
   const confirmPasswordChange = async () => {
     try {
       setSubmitting(true);
-      setShowConfirmModal(false);
 
       const response = await memberService.changePassword(
         currentPassword,
@@ -214,16 +223,6 @@ export default function ChangePasswordScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <ConfirmationModal
-        visible={showConfirmModal}
-        title="Confirm Password Change"
-        message="Are you sure you want to change your password?"
-        confirmText="Update Password"
-        onConfirm={confirmPasswordChange}
-        onCancel={() => setShowConfirmModal(false)}
-        isLoading={submitting}
-      />
     </Container>
   );
 }

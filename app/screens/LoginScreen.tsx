@@ -1,11 +1,11 @@
 import { View, Text, Alert, ActivityIndicator, Image } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { Container } from "../components/common/Container";
-import { InputField } from "../components/common/InputField";
-import { Button } from "../components/common/Button";
-import { useAuth } from "../context/AuthContext";
-import { Logo } from "../components/common/Logo";
+import { Container } from "../../components/common/Container";
+import { InputField } from "../../components/common/InputField";
+import { Button } from "../../components/common/Button";
+import { useAuth } from "../../context/AuthContext";
+import { Logo } from "../../components/common/Logo";
 
 export default function LoginScreen() {
   const { user } = useAuth();

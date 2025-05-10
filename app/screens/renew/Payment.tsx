@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
+import { Container } from "../../../components/common/Container";
+import { Button } from "../../../components/common/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { paymentService } from "../../services/api";
+import { paymentService } from "../../../services";
 import Decimal from "decimal.js";
-import { ErrorView } from "@/app/components/common/ErrorView";
-import { LoadingView } from "@/app/components/common/LoadingView";
+import { ErrorView } from "../../../components/common/ErrorView";
+import { LoadingView } from "../../../components/common/LoadingView";
 
 interface TrainerDetails {
   firstName: string;

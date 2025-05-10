@@ -145,12 +145,14 @@ exports.renewMembership = async (req, res) => {
   const { rateId, trainerId, endDate } = req.body;
   const membershipId = req.user.membershipId;
 
-  if (!rateId || !trainerId || !endDate || !membershipId) {
+  if (!rateId || !endDate || !membershipId) {
     return res.status(400).json({
       success: false,
       message: "Missing required parameters",
     });
   }
+
+  const finalTrainerId = trainerId || 0;
 
   try {
     let formattedEndDate;
@@ -169,7 +171,7 @@ exports.renewMembership = async (req, res) => {
 
     const [rows] = await db.execute(
       "UPDATE membership SET rateId = ?, ptId = ?, start = NOW(), end = ?, status = 'Active', cancelled_date = NULL, isFreeze = 0 WHERE membershipId = ?",
-      [rateId, trainerId, formattedEndDate, membershipId]
+      [rateId, finalTrainerId, formattedEndDate, membershipId]
     );
 
     if (rows.affectedRows === 0) {
@@ -310,11 +312,6 @@ exports.updatePtScheduleAvailability = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Pt schedule availability updated successfully",
-    });
-
     const [checkResult] = await db.execute(
       "SELECT COUNT(*) as availableCount FROM pt_schedule WHERE ptId = ? AND isAvailable = 1",
       [trainerId]
@@ -329,13 +326,13 @@ exports.updatePtScheduleAvailability = async (req, res) => {
       );
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Personal trainer availability updated successfully",
+      message: "Schedule and trainer availability updated successfully",
     });
   } catch (error) {
     console.error("Update pt schedule availability error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to update pt schedule availability",
     });

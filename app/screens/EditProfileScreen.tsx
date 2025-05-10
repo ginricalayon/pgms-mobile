@@ -11,16 +11,15 @@ import {
   Modal,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Container } from "../components/common/Container";
-import { Button } from "../components/common/Button";
-import { InputField } from "../components/common/InputField";
+import { Container } from "../../components/common/Container";
+import { Button } from "../../components/common/Button";
+import { InputField } from "../../components/common/InputField";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { memberService } from "../../services";
+import { useAuth } from "../../context/AuthContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { formatDate } from "../utils/dateUtils";
-import { LoadingView } from "../components/common/LoadingView";
-import { ConfirmationModal } from "../components/common/ConfirmationModal";
+import { formatDate } from "../../utils/dateUtils";
+import { LoadingView } from "../../components/common/LoadingView";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -56,8 +55,6 @@ export default function EditProfileScreen() {
     city: "",
     phoneNumber: "",
   });
-
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -312,7 +309,21 @@ export default function EditProfileScreen() {
     if (!validateForm()) {
       return;
     }
-    setShowConfirmModal(true);
+
+    Alert.alert(
+      "Save Changes",
+      "Are you sure you want to save these changes to your profile?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Save",
+          onPress: () => handleSubmit(),
+        },
+      ]
+    );
   };
 
   const handleSubmit = async () => {
@@ -320,7 +331,6 @@ export default function EditProfileScreen() {
 
     try {
       setSubmitting(true);
-      setShowConfirmModal(false);
 
       const localDate = new Date(birthdate);
       const formattedDate = new Date(
@@ -554,16 +564,6 @@ export default function EditProfileScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <ConfirmationModal
-        visible={showConfirmModal}
-        title="Save Changes"
-        message="Are you sure you want to save these changes to your profile?"
-        confirmText="Save Changes"
-        onConfirm={handleSubmit}
-        onCancel={() => setShowConfirmModal(false)}
-        isLoading={submitting}
-      />
     </Container>
   );
 }

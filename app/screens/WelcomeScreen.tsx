@@ -1,9 +1,8 @@
 import { Text, View, Image } from "react-native";
 import { Link } from "expo-router";
-import { Container } from "../components/common/Container";
-import { Button } from "../components/common/Button";
-import { Logo } from "../components/common/Logo";
-import { Footer } from "../components/common/Footer";
+import { Container } from "../../components/common/Container";
+import { Button } from "../../components/common/Button";
+import { Logo } from "../../components/common/Logo";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function WelcomeScreen() {

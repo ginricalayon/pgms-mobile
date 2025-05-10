@@ -1,14 +1,13 @@
 import { View, Text, RefreshControl, ScrollView, Platform } from "react-native";
-import { Container } from "../../components/common/Container";
-import { useAuth } from "../../context/AuthContext";
+import { Container } from "../../../components/common/Container";
+import { useAuth } from "../../../context/AuthContext";
 import { router } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
-import { memberService } from "@/app/services/api";
-import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { Button } from "@/app/components/common/Button";
-import { ErrorView } from "@/app/components/common/ErrorView";
-import { LoadingView } from "@/app/components/common/LoadingView";
-import { MembershipStatusView } from "@/app/components/common/MembershipStatusView";
+import { memberService } from "../../../services";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { ErrorView } from "../../../components/common/ErrorView";
+import { LoadingView } from "../../../components/common/LoadingView";
+import { MembershipStatusView } from "../../../components/common/MembershipStatusView";
 
 interface Schedule {
   ID: number;
@@ -285,7 +284,6 @@ export default function Schedules() {
 
         <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
           <View className="flex-row items-center mb-4">
-            <Ionicons name="calendar-outline" size={22} color="#2563EB" />
             <Text className="text-text-primary text-lg font-bold ml-2">
               Training Schedule
             </Text>

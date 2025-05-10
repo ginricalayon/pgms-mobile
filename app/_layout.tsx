@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
 import "./global.css";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "../context/AuthContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
+        <StatusBar style="dark" />
         <Stack>
           <Stack.Screen
             name="screens/WelcomeScreen"

@@ -8,12 +8,11 @@ import {
   Image,
 } from "react-native";
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../services/api";
-import { ErrorView } from "@/app/components/common/ErrorView";
-import { LoadingView } from "@/app/components/common/LoadingView";
+import { Container } from "../../../components/common/Container";
+import { Button } from "../../../components/common/Button";
+import { memberService } from "../../../services";
+import { ErrorView } from "../../../components/common/ErrorView";
+import { LoadingView } from "../../../components/common/LoadingView";
 
 interface Trainer {
   ptId: string;

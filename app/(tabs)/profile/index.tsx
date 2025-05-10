@@ -5,20 +5,20 @@ import {
   ScrollView,
   Image,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { useAuth } from "../../context/AuthContext";
+import { Container } from "../../../components/common/Container";
+import { Button } from "../../../components/common/Button";
+import { useAuth } from "../../../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../services/api";
-import ProfileInfo from "../../components/ProfileInfo";
-import { formatDate } from "../../utils/dateUtils";
-import { LoadingView } from "../../components/common/LoadingView";
-import { ErrorView } from "../../components/common/ErrorView";
-import { ConfirmationModal } from "../../components/common/ConfirmationModal";
+import { memberService } from "../../../services";
+import ProfileInfo from "../../../components/ProfileInfo";
+import { formatDate } from "../../../utils/dateUtils";
+import { LoadingView } from "../../../components/common/LoadingView";
+import { ErrorView } from "../../../components/common/ErrorView";
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -29,7 +29,6 @@ export default function Profile() {
     null
   );
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const fetchProfile = async () => {
@@ -62,7 +61,16 @@ export default function Profile() {
   );
 
   const handleLogoutButton = () => {
-    setShowLogoutModal(true);
+    Alert.alert("Logout", "Are you sure you want to log out of your account?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: () => handleLogout(),
+      },
+    ]);
   };
 
   const handleLogout = async () => {
@@ -104,7 +112,7 @@ export default function Profile() {
     <Container>
       <ScrollView
         className={`flex-1 px-4 py-6 ${
-          Platform.OS === "android" ? "mb-24" : "mb-0"
+          Platform.OS === "android" ? "mb-24" : "mb-2"
         }`}
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
@@ -215,16 +223,6 @@ export default function Profile() {
           </View>
         </View>
       </ScrollView>
-
-      <ConfirmationModal
-        visible={showLogoutModal}
-        title="Confirm Logout"
-        message="Are you sure you want to log out of your account?"
-        confirmText="Logout"
-        onConfirm={handleLogout}
-        onCancel={() => setShowLogoutModal(false)}
-        isLoading={loggingOut}
-      />
     </Container>
   );
 }

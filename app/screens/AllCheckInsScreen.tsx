@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import { Container } from "../components/common/Container";
-import { useAuth } from "../context/AuthContext";
+import { Container } from "../../components/common/Container";
+import { useAuth } from "../../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "@/app/services/api";
+import { memberService } from "../../services";
 import { router } from "expo-router";
-import { LoadingView } from "../components/common/LoadingView";
-import { ErrorView } from "../components/common/ErrorView";
+import { LoadingView } from "../../components/common/LoadingView";
+import { ErrorView } from "../../components/common/ErrorView";
 
 interface CheckIn {
   date: string;

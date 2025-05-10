@@ -8,14 +8,14 @@ import {
   Platform,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import { Container } from "../../components/common/Container";
-import { useAuth } from "../../context/AuthContext";
+import { Container } from "../../../components/common/Container";
+import { useAuth } from "../../../context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { memberService } from "@/app/services/api";
+import { memberService } from "../../../services";
 import { router } from "expo-router";
 import { BarChart } from "react-native-chart-kit";
-import { ErrorView } from "@/app/components/common/ErrorView";
-import { LoadingView } from "@/app/components/common/LoadingView";
+import { ErrorView } from "../../../components/common/ErrorView";
+import { LoadingView } from "../../../components/common/LoadingView";
 
 interface CheckIn {
   date: string;
@@ -188,7 +188,7 @@ export default function CheckIns() {
     <Container>
       <ScrollView
         className={`flex-1 px-4 py-6 ${
-          Platform.OS === "android" ? "mb-24" : "mb-0"
+          Platform.OS === "android" ? "mb-24" : "mb-2"
         }`}
         refreshControl={
           <RefreshControl

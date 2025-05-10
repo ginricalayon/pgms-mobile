@@ -9,13 +9,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Container } from "../components/common/Container";
-import { Button } from "../components/common/Button";
-import { InputField } from "../components/common/InputField";
-import { memberService } from "../services/api";
+import { Container } from "../../components/common/Container";
+import { Button } from "../../components/common/Button";
+import { InputField } from "../../components/common/InputField";
+import { memberService } from "../../services";
 import { Ionicons } from "@expo/vector-icons";
-import { ConfirmationModal } from "../components/common/ConfirmationModal";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ChangeUsernameScreen() {
   const router = useRouter();
@@ -24,7 +23,6 @@ export default function ChangeUsernameScreen() {
   const [newUsername, setNewUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [errors, setErrors] = useState({
     newUsername: "",
@@ -110,14 +108,25 @@ export default function ChangeUsernameScreen() {
       return;
     }
 
-    // Show confirmation modal
-    setShowConfirmModal(true);
+    Alert.alert(
+      "Change Username",
+      `Are you sure you want to change your username from "${currentUsername}" to "${newUsername}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Save",
+          onPress: () => confirmUsernameChange(),
+        },
+      ]
+    );
   };
 
   const confirmUsernameChange = async () => {
     try {
       setSubmitting(true);
-      setShowConfirmModal(false);
 
       const response = await memberService.changeUsername(
         password,
@@ -206,16 +215,6 @@ export default function ChangeUsernameScreen() {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <ConfirmationModal
-        visible={showConfirmModal}
-        title="Confirm Username Change"
-        message={`Are you sure you want to change your username from "${currentUsername}" to "${newUsername}"?`}
-        confirmText="Update Username"
-        onConfirm={confirmUsernameChange}
-        onCancel={() => setShowConfirmModal(false)}
-        isLoading={submitting}
-      />
     </Container>
   );
 }
