@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, RefreshControl } from "react-native";
-import { Container } from "./Container";
+import { Container } from "../common/Container";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { Button } from "./Button";
 import { router } from "expo-router";

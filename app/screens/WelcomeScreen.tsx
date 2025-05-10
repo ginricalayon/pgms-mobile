@@ -39,6 +39,15 @@ export default function WelcomeScreen() {
 
             <View className="flex-row items-center space-x-4">
               <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+                <Ionicons name="card" size={20} color="#1E90FF" />
+              </View>
+              <Text className="text-dark-200 text-base flex-1">
+                View your membership details
+              </Text>
+            </View>
+
+            <View className="flex-row items-center space-x-4">
+              <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
                 <Ionicons name="calendar" size={20} color="#1E90FF" />
               </View>
               <Text className="text-dark-200 text-base flex-1">
@@ -52,6 +61,33 @@ export default function WelcomeScreen() {
               </View>
               <Text className="text-dark-200 text-base flex-1">
                 Monitor your recent check-ins
+              </Text>
+            </View>
+
+            <View className="flex-row items-center space-x-4">
+              <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+                <Ionicons name="cash-outline" size={20} color="#1E90FF" />
+              </View>
+              <Text className="text-dark-200 text-base flex-1">
+                View your payment history
+              </Text>
+            </View>
+
+            <View className="flex-row items-center space-x-4">
+              <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+                <Ionicons name="person" size={20} color="#1E90FF" />
+              </View>
+              <Text className="text-dark-200 text-base flex-1">
+                Update your profile, username, and password
+              </Text>
+            </View>
+
+            <View className="flex-row items-center space-x-4">
+              <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+                <Ionicons name="refresh-circle" size={20} color="#1E90FF" />
+              </View>
+              <Text className="text-dark-200 text-base flex-1">
+                Renew your membership
               </Text>
             </View>
           </View>
