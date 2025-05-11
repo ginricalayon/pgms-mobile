@@ -1,47 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Alert } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, ScrollView, Alert, Linking, AppState } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
 import { Container } from "../../../components/common/Container";
 import { Button } from "../../../components/common/Button";
 import { Ionicons } from "@expo/vector-icons";
 import { paymentService } from "../../../services";
-import Decimal from "decimal.js";
+import {
+  createPayPalOrder,
+  capturePayPalPayment,
+} from "../../../services/paypal";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
-
-interface TrainerDetails {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  rate: number;
-}
-
-interface TrainerRate {
-  ptRateId: string;
-  amount: number;
-}
-
-interface ScheduleDetails {
-  scheduleDate: string;
-  startTime: string;
-  endTime: string;
-}
-
-interface RateDetails {
-  rateId: string;
-  name: string;
-  cost: number;
-  validity: string;
-}
-
-interface OrderSummary {
-  rateName: string;
-  rateValidity: string;
-  rateCost: number;
-  trainerName: string | null;
-  schedules: ScheduleDetails[];
-  total: number;
-}
+import { formatCurrency } from "../../../utils/formatCurrency";
+import { calculateEndDate } from "../../../utils/calculateEndDate";
+// import * as Linking from "expo-linking";
 
 export default function PaymentScreen() {
   const { rateId, trainerId, scheduleIds, withPT, ptRateId, totalAmount } =
@@ -55,10 +27,34 @@ export default function PaymentScreen() {
   const [trainerRate, setTrainerRate] = useState<TrainerRate | null>(null);
   const [scheduleDetails, setScheduleDetails] = useState<ScheduleDetails[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const appState = useRef(AppState.currentState);
 
   useEffect(() => {
     fetchOrderSummary();
-  }, []);
+    // Handle deep linking
+    // const subscription = Linking.addEventListener("url", handleDeepLink);
+    // return () => {
+    //   subscription.remove();
+    // };
+
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active" &&
+        paymentInitiated
+      ) {
+        // User returned to app after PayPal
+        setPaymentInitiated(false);
+        renewMembership();
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [paymentInitiated]);
 
   const fetchOrderSummary = async () => {
     try {
@@ -135,40 +131,6 @@ export default function PaymentScreen() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    if (!amount) return "0.00";
-    return Decimal(amount).toFixed(2);
-  };
-
-  const calculateEndDate = (rateValidity: string) => {
-    const startDate = new Date();
-    let endDate = new Date(startDate);
-
-    if (!rateValidity) return endDate;
-
-    const validityString = rateValidity.trim();
-    const parts = validityString.split(" ");
-
-    for (let i = 0; i < parts.length - 1; i += 2) {
-      const validityValue = parseInt(parts[i], 10);
-      const validityUnit = parts[i + 1].toLowerCase();
-
-      if (isNaN(validityValue)) continue;
-
-      if (validityUnit.startsWith("day")) {
-        endDate.setDate(endDate.getDate() + validityValue);
-      } else if (validityUnit.startsWith("month")) {
-        endDate.setMonth(endDate.getMonth() + validityValue);
-      } else if (validityUnit.startsWith("year")) {
-        endDate.setFullYear(endDate.getFullYear() + validityValue);
-      } else if (validityUnit.startsWith("week")) {
-        endDate.setDate(endDate.getDate() + validityValue * 7);
-      }
-    }
-
-    return endDate;
-  };
-
   const insertIntoTransaction = async () => {
     try {
       const response = await paymentService.insertIntoTransaction(
@@ -224,10 +186,12 @@ export default function PaymentScreen() {
         }
       }
 
-      Alert.alert("Payment successful", "Your membership has been renewed.", [
+      Alert.alert("Success", "Your membership has been renewed.", [
         {
           text: "OK",
-          onPress: () => router.push("/dashboard"),
+          onPress: () => {
+            router.replace("/(tabs)/dashboard" as any);
+          },
         },
       ]);
     } catch (err) {
@@ -236,8 +200,65 @@ export default function PaymentScreen() {
     }
   };
 
+  // const handleDeepLink = async (event: { url: string }) => {
+  //   const { url } = event;
+  //   if (url.includes("payment/success")) {
+  //     // Payment was successful
+  //     await handlePaymentSuccess();
+  //   } else if (url.includes("payment/cancel")) {
+  //     // Payment was cancelled
+  //     Alert.alert("Payment Cancelled", "Your payment was cancelled.");
+  //   }
+  // };
+
+  // const handlePaymentSuccess = async () => {
+  //   try {
+  //     setLoading(true);
+  //     await renewMembership();
+  //     Alert.alert("Success", "Payment completed successfully!", [
+  //       {
+  //         text: "OK",
+  //         onPress: () => router.push("/dashboard"),
+  //       },
+  //     ]);
+  //   } catch (error) {
+  //     console.error("Error handling payment success:", error);
+  //     Alert.alert("Error", "Failed to complete the payment process.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handlePayPalPayment = async () => {
+    try {
+      setLoading(true);
+      setPaymentInitiated(true);
+
+      // Create PayPal order
+      const order = await createPayPalOrder(Number(totalAmount));
+
+      // Open PayPal checkout in browser
+      const checkoutUrl = order.links.find(
+        (link: any) => link.rel === "approve"
+      )?.href;
+      if (checkoutUrl) {
+        await Linking.openURL(checkoutUrl);
+      } else {
+        throw new Error("Could not find PayPal checkout URL");
+      }
+    } catch (error) {
+      console.error("PayPal payment error:", error);
+      Alert.alert(
+        "Payment Error",
+        "Failed to initiate payment. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
-    return <LoadingView message="Loading membership details..." />;
+    return <LoadingView message="Loading..." />;
   }
 
   if (error) {
@@ -376,7 +397,7 @@ export default function PaymentScreen() {
           <Button
             title="Pay with Paypal"
             icon={<Ionicons name="logo-paypal" size={24} color="white" />}
-            onPress={renewMembership}
+            onPress={handlePayPalPayment}
             variant="primary"
             fullWidth
           />

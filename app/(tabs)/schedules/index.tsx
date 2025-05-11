@@ -36,7 +36,6 @@ export default function Schedules() {
       const trainerInfo = await memberService.getTrainerInfo();
       setTrainerInfo(trainerInfo);
     } catch (error) {
-      console.log("Error fetching trainer info:", error);
       setTrainerInfo(null);
     }
   };
@@ -44,16 +43,13 @@ export default function Schedules() {
   const fetchMembershipStatus = async () => {
     try {
       const status = await memberService.getMembershipStatus();
-      console.log("Raw membership status response:", status);
 
       if (Array.isArray(status) && status.length > 0 && status[0].status) {
         setMembershipStatus(status[0].status);
       } else {
-        console.log("Invalid membership status format:", status);
         setMembershipStatus(null);
       }
     } catch (error) {
-      console.log("Error fetching membership status:", error);
       setMembershipStatus(null);
     }
   };
@@ -71,12 +67,10 @@ export default function Schedules() {
       } else if (Array.isArray(schedules)) {
         setSchedules(schedules);
       } else {
-        console.log("Received non-array data:", schedules);
         setSchedules([]);
         setError("Invalid data format received");
       }
     } catch (error: any) {
-      console.log("Error fetching schedules:", error);
       setSchedules([]);
       setLoading(false);
       setError(error.message || "Failed to load schedules");
@@ -138,6 +132,17 @@ export default function Schedules() {
         iconColor="#DC2626"
         title="Membership Cancelled"
         message="Your membership has been cancelled. Please renew your membership to continue."
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+      />
+    );
+  } else if (membershipStatus === "Expired" && !trainerInfo?.firstName) {
+    return (
+      <MembershipStatusView
+        icon="clock"
+        iconColor="red"
+        title="Membership Expired"
+        message="Your membership has expired. Please renew your membership and avail a personal trainer."
         onRefresh={onRefresh}
         refreshing={refreshing}
       />

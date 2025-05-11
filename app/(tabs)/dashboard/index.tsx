@@ -34,7 +34,6 @@ export default function Dashboard() {
       setmembershipDetailsData(data);
       setError(null);
     } catch (err: any) {
-      console.error("Error fetching membership details:", err);
       setError(err.message || "Failed to load membership details");
     } finally {
       setLoading(false);

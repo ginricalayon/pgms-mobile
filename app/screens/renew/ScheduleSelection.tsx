@@ -8,14 +8,6 @@ import { memberService } from "../../../services";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
 
-interface Schedule {
-  ptScheduleId: string;
-  ptId: string;
-  scheduleDate: string;
-  startTime: string;
-  endTime: string;
-}
-
 export default function SelectSchedule() {
   const router = useRouter();
   const { rateId, trainerId, totalAmount, withPT, ptRateId } =

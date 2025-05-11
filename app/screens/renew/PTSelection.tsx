@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
 import { Container } from "../../../components/common/Container";
 import { Button } from "../../../components/common/Button";
 import { memberService } from "../../../services";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
-
-interface Trainer {
-  ptId: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  address: string;
-  phoneNumber: string;
-  isAvailable: boolean;
-}
 
 export default function SelectPersonalTrainer() {
   const router = useRouter();

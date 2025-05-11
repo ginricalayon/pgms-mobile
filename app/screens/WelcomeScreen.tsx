@@ -1,11 +1,18 @@
 import { Text, View, Image } from "react-native";
-import { Link } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { Container } from "../../components/common/Container";
 import { Button } from "../../components/common/Button";
 import { Logo } from "../../components/common/Logo";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
 
 export default function WelcomeScreen() {
+  const { user } = useAuth();
+
+  if (user) {
+    return <Redirect href="/(tabs)/dashboard" />;
+  }
+
   return (
     <Container>
       <View className="flex-1 bg-white">
@@ -95,14 +102,12 @@ export default function WelcomeScreen() {
 
         {/* Button Section */}
         <View className="px-6 pb-8">
-          <Link href="/screens/LoginScreen" asChild>
-            <Button
-              title="Get Started"
-              onPress={() => {}}
-              fullWidth
-              icon={<Ionicons name="arrow-forward" size={24} color="white" />}
-            />
-          </Link>
+          <Button
+            title="Get Started"
+            onPress={() => router.replace("/screens/LoginScreen")}
+            fullWidth
+            icon={<Ionicons name="arrow-forward" size={24} color="white" />}
+          />
         </View>
       </View>
     </Container>

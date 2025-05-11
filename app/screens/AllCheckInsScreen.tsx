@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
@@ -14,12 +13,6 @@ import { memberService } from "../../services";
 import { router } from "expo-router";
 import { LoadingView } from "../../components/common/LoadingView";
 import { ErrorView } from "../../components/common/ErrorView";
-
-interface CheckIn {
-  date: string;
-  timeIn: string;
-  timeOut?: string;
-}
 
 export default function AllCheckInsScreen() {
   const { user } = useAuth();

@@ -9,21 +9,6 @@ import { LoadingView } from "../../../components/common/LoadingView";
 import { ErrorView } from "../../../components/common/ErrorView";
 import Decimal from "decimal.js";
 
-interface Rate {
-  rateId: string;
-  name: string;
-  cost: number;
-  validityId: string;
-  validity: string;
-}
-
-interface PersonalTrainerRate {
-  ptRateId: string;
-  validityId: string;
-  amount: number;
-  validity: string;
-}
-
 export default function RenewalRateSelection() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
