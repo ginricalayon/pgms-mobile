@@ -1,6 +1,7 @@
 import { View, Text, RefreshControl, ScrollView, Platform } from "react-native";
 import { Container } from "../../../components/common/Container";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
 import { router } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
 import { memberService } from "../../../services";
@@ -24,6 +25,7 @@ interface TrainerInfo {
 
 export default function Schedules() {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -101,7 +103,12 @@ export default function Schedules() {
   }, []);
 
   if (loading && !refreshing) {
-    return <LoadingView message="Loading schedules..." />;
+    return (
+      <LoadingView
+        message="Loading schedules..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error && !refreshing) {
@@ -123,6 +130,7 @@ export default function Schedules() {
         message="Your account is currently frozen. Please unfreeze your membership at the gym to resched your schedule to your Personal Trainer"
         onRefresh={onRefresh}
         refreshing={refreshing}
+        darkMode={isDarkMode}
       />
     );
   } else if (membershipStatus === "Cancelled") {
@@ -134,6 +142,7 @@ export default function Schedules() {
         message="Your membership has been cancelled. Please renew your membership to continue."
         onRefresh={onRefresh}
         refreshing={refreshing}
+        darkMode={isDarkMode}
       />
     );
   } else if (membershipStatus === "Expired" && !trainerInfo?.firstName) {
@@ -145,6 +154,7 @@ export default function Schedules() {
         message="Your membership has expired. Please renew your membership and avail a personal trainer."
         onRefresh={onRefresh}
         refreshing={refreshing}
+        darkMode={isDarkMode}
       />
     );
   }
@@ -158,77 +168,51 @@ export default function Schedules() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={["#2563EB"]}
-              tintColor="#2563EB"
+              colors={[isDarkMode ? "#808080" : "#2563EB"]}
+              tintColor={isDarkMode ? "#808080" : "#2563EB"}
               title="Pull to refresh"
-              titleColor="#2563EB"
+              titleColor={isDarkMode ? "#808080" : "#2563EB"}
             />
           }
         >
           <View className="flex-row justify-between items-center mb-6 mt-4">
-            <Text className="text-text-primary text-2xl font-bold">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-2xl font-bold`}
+            >
               Schedules
             </Text>
           </View>
 
-          <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+          <View
+            className={`${
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            } rounded-xl p-6 shadow-sm mb-6 border ${
+              isDarkMode ? "border-gray-700" : "border-light-200"
+            }`}
+          >
             <View className="flex-row items-center mb-4">
-              <Ionicons name="person-outline" size={22} color="#2563EB" />
-              <Text className="text-text-primary text-lg font-bold ml-2">
+              <Ionicons
+                name="person-outline"
+                size={22}
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
+              />
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-lg font-bold ml-2`}
+              >
                 No Personal Trainer
               </Text>
             </View>
-            <Text className="text-text-secondary mb-4">
+            <Text
+              className={`${
+                isDarkMode ? "text-gray-300" : "text-text-secondary"
+              } mb-4`}
+            >
               Your membership doesn't include a personal trainer.
             </Text>
-
-            {/* <View className="mt-4">
-              <Text className="text-text-primary font-bold mb-2">
-                Benefits of having a Personal Trainer:
-              </Text>
-
-              <View className="flex-row items-start mb-2">
-                <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color="#22C55E"
-                  style={{ marginTop: 2, marginRight: 8 }}
-                />
-                <Text className="text-text-secondary flex-1">
-                  Custom workout plans tailored to your goals
-                </Text>
-              </View>
-
-              <View className="flex-row items-start mb-2">
-                <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color="#22C55E"
-                  style={{ marginTop: 2, marginRight: 8 }}
-                />
-                <Text className="text-text-secondary flex-1">
-                  One-on-one guidance during your sessions
-                </Text>
-              </View>
-
-              <View className="flex-row items-start mb-2">
-                <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color="#22C55E"
-                  style={{ marginTop: 2, marginRight: 8 }}
-                />
-                <Text className="text-text-secondary flex-1">
-                  Nutrition advice and progress tracking
-                </Text>
-              </View>
-            </View>
-
-            <Button
-              title="Avail Personal Trainer"
-              onPress={() => router.push("dashboard" as any)}
-              fullWidth
-            /> */}
           </View>
         </ScrollView>
       </Container>
@@ -246,27 +230,49 @@ export default function Schedules() {
             refreshing={refreshing}
             onRefresh={onRefresh}
             colors={["#2563EB"]}
-            tintColor="#2563EB"
+            tintColor={isDarkMode ? "#60A5FA" : "#2563EB"}
             title="Pull to refresh"
-            titleColor="#2563EB"
+            titleColor={isDarkMode ? "#60A5FA" : "#2563EB"}
           />
         }
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text className="text-text-primary text-2xl font-bold">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
             Schedules
           </Text>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Ionicons name="person-outline" size={22} color="#2563EB" />
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Ionicons
+              name="person-outline"
+              size={22}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Your Personal Trainer
             </Text>
           </View>
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-text-primary text-xl font-bold">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-xl font-bold`}
+            >
               {trainerInfo?.firstName || "Unknown"}{" "}
               {trainerInfo?.lastName || ""}
             </Text>
@@ -274,22 +280,40 @@ export default function Schedules() {
               <Ionicons
                 name="call-outline"
                 size={18}
-                color="#2563EB"
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
                 style={{ marginRight: 4 }}
               />
-              <Text className="text-text-secondary">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {trainerInfo?.phoneNumber || "N/A"}
               </Text>
             </View>
           </View>
-          <Text className="text-text-secondary mb-4">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            } mb-4`}
+          >
             View your upcoming sessions with your personal trainer
           </Text>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Training Schedule
             </Text>
           </View>
@@ -298,27 +322,63 @@ export default function Schedules() {
             schedules.map((schedule, index) => (
               <View
                 key={index}
-                className="bg-light-100 rounded-lg p-4 mb-4 flex-row justify-between items-center"
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-100"
+                } rounded-lg p-4 mb-4 flex-row justify-between items-center`}
               >
                 <View className="flex-row items-center">
-                  <Ionicons name="calendar-outline" size={20} color="#2563EB" />
-                  <Text className="text-text-primary ml-2">{schedule.Day}</Text>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
+                    {schedule.Day}
+                  </Text>
                 </View>
                 <View className="flex-row items-center">
-                  <Ionicons name="time-outline" size={20} color="#2563EB" />
-                  <Text className="text-text-primary ml-2">
+                  <Ionicons
+                    name="time-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
                     {schedule.StartTime} - {schedule.EndTime}
                   </Text>
                 </View>
               </View>
             ))
           ) : (
-            <View className="bg-light-100 rounded-lg p-4 mb-4 items-center">
-              <MaterialIcons name="event-busy" size={40} color="#2563EB" />
-              <Text className="text-text-primary text-lg font-medium mt-2 mb-1">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              } rounded-lg p-4 mb-4 items-center`}
+            >
+              <MaterialIcons
+                name="event-busy"
+                size={40}
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
+              />
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-lg font-medium mt-2 mb-1`}
+              >
                 No sessions scheduled
               </Text>
-              <Text className="text-text-secondary text-center">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                } text-center`}
+              >
                 You don't have any upcoming sessions with your trainer
               </Text>
             </View>

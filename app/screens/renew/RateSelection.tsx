@@ -8,9 +8,11 @@ import { memberService } from "../../../services";
 import { LoadingView } from "../../../components/common/LoadingView";
 import { ErrorView } from "../../../components/common/ErrorView";
 import Decimal from "decimal.js";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function RenewalRateSelection() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [rates, setRates] = useState<Rate[]>([]);
   const [selectedRate, setSelectedRate] = useState<Rate | null>(null);
@@ -131,15 +133,29 @@ export default function RenewalRateSelection() {
           title: "Renew Membership",
           headerShown: true,
           headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: isDarkMode ? "#111827" : "#fff",
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? "#fff" : "#000",
+          },
         }}
       />
 
       <View className="flex-1 px-4 py-6">
         <View className="mb-6">
-          <Text className="text-text-primary text-2xl font-bold mb-2">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold mb-2`}
+          >
             Select a Membership Rate
           </Text>
-          <Text className="text-text-secondary">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            }`}
+          >
             Choose a membership rate that best fits your needs.
           </Text>
         </View>
@@ -148,7 +164,11 @@ export default function RenewalRateSelection() {
           <View className="h-8 w-8 rounded-full bg-accent items-center justify-center mr-2">
             <Text className="text-white font-bold">1</Text>
           </View>
-          <Text className="text-text-primary font-medium">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } font-medium`}
+          >
             Step 1 of 4: Rate Selection
           </Text>
         </View>
@@ -161,20 +181,34 @@ export default function RenewalRateSelection() {
                 className={`mb-4 p-4 rounded-xl border ${
                   selectedRate?.rateId === rate.rateId
                     ? "border-accent bg-accent/10"
+                    : isDarkMode
+                    ? "border-gray-700 bg-gray-800"
                     : "border-light-200 bg-white"
                 }`}
                 onPress={() => handleRateSelection(rate)}
               >
                 <View className="flex-row justify-between items-center">
                   <View>
-                    <Text className="text-text-primary font-bold text-lg">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-white" : "text-text-primary"
+                      } font-bold text-lg`}
+                    >
                       {rate.name}
                     </Text>
-                    <Text className="text-text-secondary mt-1">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } mt-1`}
+                    >
                       {rate.validity}
                     </Text>
                   </View>
-                  <Text className="text-text-primary font-bold text-xl">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-bold text-xl`}
+                  >
                     {selectedRate?.rateId === rate.rateId &&
                     isWithPT &&
                     personalTrainerRates?.validityId === rate.validityId
@@ -186,14 +220,18 @@ export default function RenewalRateSelection() {
             ))
           ) : (
             <View className="flex-1 justify-center items-center p-8">
-              <Text className="text-text-secondary text-center">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                } text-center`}
+              >
                 No membership rates available at the moment. Please try again
                 later.
               </Text>
             </View>
           )}
 
-          {rates.length > 0 && (
+          {rates.length > 0 && selectedRate && personalTrainerRates && (
             <>
               <View className="flex-row items-center mt-4">
                 <Checkbox
@@ -202,7 +240,11 @@ export default function RenewalRateSelection() {
                   color={isWithPT ? "#2563EB" : undefined}
                   disabled={!selectedRate || !personalTrainerRates}
                 />
-                <Text className="text-text-primary font-medium ml-2">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-medium ml-2`}
+                >
                   Includes Personal Trainer
                 </Text>
               </View>

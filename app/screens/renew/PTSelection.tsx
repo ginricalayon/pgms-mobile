@@ -6,9 +6,11 @@ import { Button } from "../../../components/common/Button";
 import { memberService } from "../../../services";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function SelectPersonalTrainer() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const { rateId, ptRateId, totalAmount, withPT } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [trainers, setTrainers] = useState<Trainer[]>([]);
@@ -54,7 +56,12 @@ export default function SelectPersonalTrainer() {
   };
 
   if (loading) {
-    return <LoadingView message="Loading trainers..." />;
+    return (
+      <LoadingView
+        message="Loading trainers..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error) {
@@ -74,15 +81,29 @@ export default function SelectPersonalTrainer() {
           title: "Select Trainer",
           headerShown: true,
           headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: isDarkMode ? "#111827" : "#fff",
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? "#fff" : "#000",
+          },
         }}
       />
 
       <View className="flex-1 px-4 py-6">
         <View className="mb-6">
-          <Text className="text-text-primary text-2xl font-bold mb-2">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold mb-2`}
+          >
             Choose Your Personal Trainer
           </Text>
-          <Text className="text-text-secondary">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            }`}
+          >
             Select a personal trainer who will guide you through your fitness
             journey.
           </Text>
@@ -92,7 +113,11 @@ export default function SelectPersonalTrainer() {
           <View className="h-8 w-8 rounded-full bg-accent items-center justify-center mr-2">
             <Text className="text-white font-bold">2</Text>
           </View>
-          <Text className="text-text-primary font-medium">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } font-medium`}
+          >
             Step 2 of 4: Trainer Selection
           </Text>
         </View>
@@ -105,22 +130,40 @@ export default function SelectPersonalTrainer() {
                 className={`mb-4 p-4 rounded-xl border ${
                   selectedTrainer?.ptId === trainer.ptId
                     ? "border-accent bg-accent/10"
+                    : isDarkMode
+                    ? "border-gray-700 bg-gray-800"
                     : "border-light-200 bg-white"
                 }`}
                 onPress={() => handleTrainerSelection(trainer)}
               >
                 <View className="flex-row items-center">
                   <View className="flex-1">
-                    <Text className="text-text-primary font-bold text-lg">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-white" : "text-text-primary"
+                      } font-bold text-lg`}
+                    >
                       {trainer.firstName} {trainer.lastName}
                     </Text>
-                    <Text className="text-text-secondary mt-1">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } mt-1`}
+                    >
                       {trainer.gender}
                     </Text>
-                    <Text className="text-text-secondary mt-1">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } mt-1`}
+                    >
                       {trainer.address}
                     </Text>
-                    <Text className="text-text-secondary mt-1">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } mt-1`}
+                    >
                       {trainer.phoneNumber}
                     </Text>
                   </View>
@@ -129,7 +172,11 @@ export default function SelectPersonalTrainer() {
             ))
           ) : (
             <View className="flex-1 justify-center items-center p-8">
-              <Text className="text-text-secondary text-center">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                } text-center`}
+              >
                 No trainers available at the moment. Please try again later.
               </Text>
             </View>

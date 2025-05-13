@@ -13,11 +13,13 @@ import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { calculateEndDate } from "../../../utils/calculateEndDate";
+import { useTheme } from "../../../context/ThemeContext";
 // import * as Linking from "expo-linking";
 
 export default function PaymentScreen() {
   const { rateId, trainerId, scheduleIds, withPT, ptRateId, totalAmount } =
     useLocalSearchParams();
+  const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(true);
   const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
   const [rateDetails, setRateDetails] = useState<RateDetails | null>(null);
@@ -200,35 +202,6 @@ export default function PaymentScreen() {
     }
   };
 
-  // const handleDeepLink = async (event: { url: string }) => {
-  //   const { url } = event;
-  //   if (url.includes("payment/success")) {
-  //     // Payment was successful
-  //     await handlePaymentSuccess();
-  //   } else if (url.includes("payment/cancel")) {
-  //     // Payment was cancelled
-  //     Alert.alert("Payment Cancelled", "Your payment was cancelled.");
-  //   }
-  // };
-
-  // const handlePaymentSuccess = async () => {
-  //   try {
-  //     setLoading(true);
-  //     await renewMembership();
-  //     Alert.alert("Success", "Payment completed successfully!", [
-  //       {
-  //         text: "OK",
-  //         onPress: () => router.push("/dashboard"),
-  //       },
-  //     ]);
-  //   } catch (error) {
-  //     console.error("Error handling payment success:", error);
-  //     Alert.alert("Error", "Failed to complete the payment process.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handlePayPalPayment = async () => {
     try {
       setLoading(true);
@@ -252,13 +225,19 @@ export default function PaymentScreen() {
         "Payment Error",
         "Failed to initiate payment. Please try again."
       );
+      setPaymentInitiated(false);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <LoadingView message="Loading..." />;
+    return (
+      <LoadingView
+        message="Loading..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error) {
@@ -278,15 +257,29 @@ export default function PaymentScreen() {
           title: "Payment",
           headerShown: true,
           headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: isDarkMode ? "#111827" : "#fff",
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? "#fff" : "#000",
+          },
         }}
       />
 
       <ScrollView className="flex-1 px-4 py-6">
         <View className="mb-6">
-          <Text className="text-text-primary text-2xl font-bold mb-2">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold mb-2`}
+          >
             Complete Your Payment
           </Text>
-          <Text className="text-text-secondary">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            }`}
+          >
             Review your membership details and select a payment method to
             complete your membership renewal.
           </Text>
@@ -296,40 +289,92 @@ export default function PaymentScreen() {
           <View className="h-8 w-8 rounded-full bg-accent items-center justify-center mr-2">
             <Text className="text-white font-bold">4</Text>
           </View>
-          <Text className="text-text-primary font-medium">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } font-medium`}
+          >
             Step 4 of 4: Payment
           </Text>
         </View>
 
         {/* Order Summary */}
-        <View className="bg-white rounded-xl p-5 border border-light-200 mb-6">
-          <Text className="text-text-primary font-bold text-lg mb-4">
+        <View
+          className={`${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-light-200"
+          } rounded-xl p-5 border mb-6`}
+        >
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } font-bold text-lg mb-4`}
+          >
             Membership Details
           </Text>
 
           <View className="space-y-3">
             {/* Rate Details */}
-            <View className="bg-light-50 p-3 rounded-lg">
-              <Text className="text-text-primary font-bold mb-2">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-700" : "bg-light-50"
+              } p-3 rounded-lg mb-1`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold mb-2`}
+              >
                 Rate Details
               </Text>
               <View className="flex-row justify-between">
-                <Text className="text-text-secondary">Rate Name</Text>
-                <Text className="text-text-primary font-medium">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  }`}
+                >
+                  Rate Name
+                </Text>
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-medium`}
+                >
                   {orderSummary?.rateName}
                 </Text>
               </View>
 
               <View className="flex-row justify-between mt-1">
-                <Text className="text-text-secondary">Validity</Text>
-                <Text className="text-text-primary font-medium">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  }`}
+                >
+                  Validity
+                </Text>
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-medium`}
+                >
                   {orderSummary?.rateValidity}
                 </Text>
               </View>
 
               <View className="flex-row justify-between mt-1">
-                <Text className="text-text-secondary">Amount</Text>
-                <Text className="text-text-primary font-medium">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  }`}
+                >
+                  Amount
+                </Text>
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-medium`}
+                >
                   {formatCurrency(orderSummary?.rateCost || 0)}
                 </Text>
               </View>
@@ -337,13 +382,31 @@ export default function PaymentScreen() {
 
             {/* Trainer Details */}
             {withPT === "true" && (
-              <View className="bg-light-50 p-3 rounded-lg">
-                <Text className="text-text-primary font-bold mb-2">
+              <View
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-50"
+                } p-3 rounded-lg mb-1`}
+              >
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-bold mb-2`}
+                >
                   Personal Trainer
                 </Text>
                 <View className="flex-row justify-between">
-                  <Text className="text-text-secondary">Trainer Name</Text>
-                  <Text className="text-text-primary font-medium">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    }`}
+                  >
+                    Trainer Name
+                  </Text>
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-medium`}
+                  >
                     {orderSummary?.trainerName || trainerDetails
                       ? `${trainerDetails?.firstName || ""} ${
                           trainerDetails?.lastName || ""
@@ -353,8 +416,18 @@ export default function PaymentScreen() {
                 </View>
 
                 <View className="flex-row justify-between mt-1">
-                  <Text className="text-text-secondary">Trainer Fee</Text>
-                  <Text className="text-text-primary font-medium">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    }`}
+                  >
+                    Trainer Fee
+                  </Text>
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-medium`}
+                  >
                     {formatCurrency(trainerRate?.amount || 0)}
                   </Text>
                 </View>
@@ -363,16 +436,30 @@ export default function PaymentScreen() {
 
             {/* Schedule Details */}
             {withPT === "true" && scheduleDetails.length > 0 && (
-              <View className="bg-light-50 p-3 rounded-lg">
-                <Text className="text-text-primary font-bold mb-2">
+              <View
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-50"
+                } p-3 rounded-lg`}
+              >
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-bold mb-2`}
+                >
                   Training Schedule{scheduleDetails.length > 1 ? "s" : ""}
                 </Text>
                 {scheduleDetails.map((schedule, index) => (
                   <View
                     key={index}
-                    className="mt-1 border-b border-light-200 pb-2 last:border-b-0"
+                    className={`mt-1 border-b ${
+                      isDarkMode ? "border-gray-600" : "border-light-200"
+                    } pb-2 last:border-b-0`}
                   >
-                    <Text className="text-text-primary">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-white" : "text-text-primary"
+                      }`}
+                    >
                       {schedule.scheduleDate}: {schedule.startTime} -{" "}
                       {schedule.endTime}
                     </Text>
@@ -381,11 +468,21 @@ export default function PaymentScreen() {
               </View>
             )}
 
-            <View className="border-t border-light-200 my-2" />
+            <View
+              className={`border-t ${
+                isDarkMode ? "border-gray-700" : "border-light-200"
+              } my-2`}
+            />
 
             {/* Total */}
             <View className="flex-row justify-between">
-              <Text className="text-text-primary font-bold">Total Amount</Text>
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
+                Total Amount
+              </Text>
               <Text className="text-accent font-bold text-lg">
                 {formatCurrency(orderSummary?.total || 0)}
               </Text>

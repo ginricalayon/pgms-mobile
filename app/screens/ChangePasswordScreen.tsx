@@ -14,9 +14,11 @@ import { Button } from "../../components/common/Button";
 import { InputField } from "../../components/common/InputField";
 import { memberService } from "../../services";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -166,15 +168,27 @@ export default function ChangePasswordScreen() {
               onPress={() => router.back()}
               className="p-2 -ml-2"
             >
-              <Ionicons name="arrow-back" size={24} color="#1E90FF" />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={isDarkMode ? "#60A5FA" : "#1E90FF"}
+              />
             </TouchableOpacity>
-            <Text className="text-text-primary text-2xl font-bold mx-auto pr-10">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-2xl font-bold mx-auto pr-10`}
+            >
               Change Password
             </Text>
           </View>
 
           <View className="mb-6">
-            <Text className="text-dark-100 mb-4">
+            <Text
+              className={`${
+                isDarkMode ? "text-gray-300" : "text-dark-100"
+              } mb-4`}
+            >
               Please enter your current password and a new password.
             </Text>
 

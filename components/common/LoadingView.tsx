@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { Container } from "./Container";
+import { useTheme } from "../../context/ThemeContext";
 
 interface LoadingViewProps {
   message?: string;
@@ -13,11 +14,15 @@ export const LoadingView: React.FC<LoadingViewProps> = ({
   color = "#1E90FF",
   size = "large",
 }) => {
+  const { isDarkMode } = useTheme();
+
   return (
     <Container>
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size={size} color={color} />
-        <Text className="mt-4 text-dark-200">{message}</Text>
+        <Text className={`mt-4 ${isDarkMode ? "text-white" : "text-dark-200"}`}>
+          {message}
+        </Text>
       </View>
     </Container>
   );

@@ -3,6 +3,7 @@ import { Container } from "../common/Container";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { Button } from "./Button";
 import { router } from "expo-router";
+import { useTheme } from "../../context/ThemeContext";
 
 interface ActionItem {
   icon: keyof typeof Ionicons.glyphMap;
@@ -19,6 +20,7 @@ interface MembershipStatusViewProps {
   buttonOnPress?: () => void;
   onRefresh?: () => void;
   refreshing?: boolean;
+  darkMode?: boolean;
 }
 
 export function MembershipStatusView({
@@ -31,7 +33,12 @@ export function MembershipStatusView({
   buttonOnPress,
   onRefresh,
   refreshing = false,
+  darkMode,
 }: MembershipStatusViewProps) {
+  const { isDarkMode } = useTheme();
+  // Use provided darkMode prop if available, otherwise use context
+  const isDark = darkMode !== undefined ? darkMode : isDarkMode;
+
   return (
     <Container>
       <ScrollView
@@ -41,19 +48,29 @@ export function MembershipStatusView({
             refreshing={refreshing}
             onRefresh={onRefresh}
             colors={["#2563EB"]}
-            tintColor="#2563EB"
+            tintColor={isDark ? "#60A5FA" : "#2563EB"}
             title="Pull to refresh"
-            titleColor="#2563EB"
+            titleColor={isDark ? "#60A5FA" : "#2563EB"}
           />
         }
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text className="text-text-primary text-2xl font-bold">
+          <Text
+            className={`${
+              isDark ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
             Schedules
           </Text>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDark ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDark ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
             <View
               style={{
@@ -65,14 +82,30 @@ export function MembershipStatusView({
             >
               <FontAwesome5 name={icon} size={20} color={iconColor} />
             </View>
-            <Text className="text-text-primary text-lg font-bold">{title}</Text>
+            <Text
+              className={`${
+                isDark ? "text-white" : "text-text-primary"
+              } text-lg font-bold`}
+            >
+              {title}
+            </Text>
           </View>
-          <Text className="text-text-secondary mb-4">{message}</Text>
+          <Text
+            className={`${
+              isDark ? "text-gray-300" : "text-text-secondary"
+            } mb-4`}
+          >
+            {message}
+          </Text>
 
           {buttonTitle && (
             <View>
               {actions && (
-                <Text className="text-text-primary font-bold mb-2">
+                <Text
+                  className={`${
+                    isDark ? "text-white" : "text-text-primary"
+                  } font-bold mb-2`}
+                >
                   What you can do:
                 </Text>
               )}
@@ -95,7 +128,11 @@ export function MembershipStatusView({
                         color={iconColor}
                       />
                     </View>
-                    <Text className="text-text-secondary flex-1">
+                    <Text
+                      className={`${
+                        isDark ? "text-gray-300" : "text-text-secondary"
+                      } flex-1`}
+                    >
                       {action.text}
                     </Text>
                   </View>

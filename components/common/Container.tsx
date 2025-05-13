@@ -6,6 +6,7 @@ import {
   Platform,
   ViewStyle,
 } from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 
 interface ContainerProps {
   children: React.ReactNode;
@@ -20,8 +21,13 @@ export function Container({
   withKeyboardAvoidingView = false,
   style,
 }: ContainerProps) {
+  const { isDarkMode } = useTheme();
+
   const content = (
-    <View className="flex-1 bg-primary p-4" style={style}>
+    <View
+      className={`flex-1 ${isDarkMode ? "bg-gray-900" : "bg-primary"} p-4`}
+      style={style}
+    >
       {children}
     </View>
   );

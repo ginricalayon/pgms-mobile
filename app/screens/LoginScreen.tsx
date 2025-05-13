@@ -5,10 +5,12 @@ import { Container } from "../../components/common/Container";
 import { InputField } from "../../components/common/InputField";
 import { Button } from "../../components/common/Button";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { Logo } from "../../components/common/Logo";
 
 export default function LoginScreen() {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
@@ -48,7 +50,11 @@ export default function LoginScreen() {
 
   return (
     <Container withKeyboardAvoidingView withScrollView>
-      <View className="flex-1 justify-between min-h-screen bg-white">
+      <View
+        className={`flex-1 justify-between min-h-screen ${
+          isDarkMode ? "bg-gray-900" : "bg-white"
+        }`}
+      >
         <Stack.Screen
           options={{
             headerShown: false,
@@ -58,10 +64,18 @@ export default function LoginScreen() {
         {/* Logo and Header Section */}
         <View className="items-center mt-16">
           <Logo size="large" />
-          <Text className="text-dark-200 text-2xl font-bold text-center mt-6 px-4">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-dark-200"
+            } text-2xl font-bold text-center mt-6 px-4`}
+          >
             Welcome Back!
           </Text>
-          <Text className="text-dark-100 text-base text-center mt-2 px-4">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-dark-100"
+            } text-base text-center mt-2 px-4`}
+          >
             Sign in to continue to your account
           </Text>
         </View>
@@ -86,7 +100,10 @@ export default function LoginScreen() {
 
           <View className="mt-4">
             {loginLoading ? (
-              <ActivityIndicator size="large" color="#1E90FF" />
+              <ActivityIndicator
+                size="large"
+                color={isDarkMode ? "#808080" : "#2563EB"}
+              />
             ) : (
               <Button title="Sign In" onPress={handleSignIn} fullWidth />
             )}
@@ -95,7 +112,11 @@ export default function LoginScreen() {
 
         {/* Footer */}
         <View className="items-center mb-8">
-          <Text className="text-dark-100 text-sm">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-400" : "text-dark-100"
+            } text-sm`}
+          >
             © 2024 PGMS. All rights reserved.
           </Text>
         </View>

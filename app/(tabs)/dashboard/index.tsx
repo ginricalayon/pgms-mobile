@@ -10,6 +10,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Container } from "../../../components/common/Container";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { memberService } from "../../../services";
 import { formatDate } from "../../../utils/dateUtils";
@@ -19,6 +20,7 @@ import { Button } from "../../../components/common/Button";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -128,15 +130,43 @@ export default function Dashboard() {
       case "Expired":
         return (
           <>
-            <View className="bg-light-100 rounded-lg p-4 mb-4">
-              <Text className="text-text-primary font-bold">Start Date</Text>
-              <Text className="text-text-secondary">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } rounded-lg p-4 mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
+                Start Date
+              </Text>
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {formatDate(startDate ? startDate.toString() : undefined)}
               </Text>
             </View>
-            <View className="bg-light-100 rounded-lg p-4 mb-4">
-              <Text className="text-text-primary font-bold">End Date</Text>
-              <Text className="text-text-secondary">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } rounded-lg p-4 mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
+                End Date
+              </Text>
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {formatDate(endDate ? endDate.toString() : undefined)}
               </Text>
             </View>
@@ -145,21 +175,45 @@ export default function Dashboard() {
       case "Freezed":
         return (
           <>
-            <View className="bg-light-100 rounded-lg p-4 mb-4">
-              <Text className="text-text-primary font-bold">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } rounded-lg p-4 mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
                 Freeze Start Date
               </Text>
-              <Text className="text-text-secondary">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {formatDate(
                   freezeStartDate ? freezeStartDate.toString() : undefined
                 )}
               </Text>
             </View>
-            <View className="bg-light-100 rounded-lg p-4 mb-4">
-              <Text className="text-text-primary font-bold">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } rounded-lg p-4 mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
                 Freeze End Date
               </Text>
-              <Text className="text-text-secondary">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {formatDate(
                   freezeEndDate ? freezeEndDate.toString() : undefined
                 )}
@@ -170,11 +224,23 @@ export default function Dashboard() {
       case "Cancelled":
         return (
           <>
-            <View className="bg-light-100 rounded-lg p-4 mb-4">
-              <Text className="text-text-primary font-bold">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } rounded-lg p-4 mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-bold`}
+              >
                 Cancelled Date
               </Text>
-              <Text className="text-text-secondary">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                }`}
+              >
                 {formatDate(
                   cancelledDate ? cancelledDate.toString() : undefined
                 )}
@@ -188,7 +254,12 @@ export default function Dashboard() {
   };
 
   if (loading && !refreshing) {
-    return <LoadingView message="Loading membership details..." />;
+    return (
+      <LoadingView
+        message="Loading membership details..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error && !refreshing) {
@@ -211,39 +282,78 @@ export default function Dashboard() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#2563EB"]}
-            tintColor="#2563EB"
+            colors={[isDarkMode ? "#808080" : "#2563EB"]}
+            tintColor={isDarkMode ? "#808080" : "#2563EB"}
             title="Pull to refresh"
-            titleColor="#2563EB"
+            titleColor={isDarkMode ? "#808080" : "#2563EB"}
           />
         }
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text className="text-text-primary text-2xl font-bold">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
             Dashboard
           </Text>
-          <TouchableOpacity onPress={navigateToProfile} className="p-2">
-            <Ionicons name="person-circle-outline" size={30} color="#2563EB" />
-          </TouchableOpacity>
+          <View className="flex-row">
+            <TouchableOpacity onPress={toggleTheme} className="p-2 mr-2">
+              <Ionicons
+                name={isDarkMode ? "sunny-outline" : "moon-outline"}
+                size={30}
+                color={isDarkMode ? "#FCD34D" : "#2563EB"}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={navigateToProfile} className="p-2">
+              <Ionicons
+                name="person-circle-outline"
+                size={30}
+                color={isDarkMode ? "#FFFFFF" : "#2563EB"}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
-          <Text className="text-text-primary text-xl font-bold mb-2">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-xl font-bold mb-2`}
+          >
             Welcome,{" "}
             {`${membershipDetailsData?.user?.customerFirstName} ${membershipDetailsData?.user?.customerLastName}` ||
               "Member"}
             !
           </Text>
-          <Text className="text-text-secondary mb-4">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            } mb-4`}
+          >
             You've successfully logged in to your PGMS Membership account.
           </Text>
 
-          <View className="flex-row items-center bg-light-100 p-3 rounded-lg">
+          <View
+            className={`flex-row items-center ${
+              isDarkMode ? "bg-gray-700" : "bg-light-100"
+            } p-3 rounded-lg`}
+          >
             <View className="mr-3 bg-accent rounded-full p-2">
               <Ionicons name="fitness" size={20} color="#FFFFFF" />
             </View>
             <View className="flex-1">
-              <Text className="text-text-primary font-medium">
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-medium`}
+              >
                 Membership Status
               </Text>
               <View className="flex-row items-center mt-1">
@@ -268,14 +378,26 @@ export default function Dashboard() {
               {membershipDetailsData?.user?.status !== "Cancelled" && (
                 <View className="mt-3">
                   <View className="flex-row justify-between mb-1">
-                    <Text className="text-text-secondary text-sm">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } text-sm`}
+                    >
                       {getRemainingDays()}
                     </Text>
-                    <Text className="text-text-secondary text-sm">
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } text-sm`}
+                    >
                       {calculateMembershipProgress()}%
                     </Text>
                   </View>
-                  <View className="h-2 bg-light-200 rounded-full overflow-hidden">
+                  <View
+                    className={`h-2 ${
+                      isDarkMode ? "bg-gray-600" : "bg-light-200"
+                    } rounded-full overflow-hidden`}
+                  >
                     <View
                       style={{
                         width: `${calculateMembershipProgress()}%`,
@@ -292,16 +414,28 @@ export default function Dashboard() {
 
           {membershipDetailsData?.user?.status === "Expired" ||
           membershipDetailsData?.user?.status === "Cancelled" ? (
-            <View className="mt-6 bg-light-100 rounded-lg p-4 border border-light-200">
+            <View
+              className={`mt-6 ${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              } rounded-lg p-4`}
+            >
               <View className="flex-row items-center mb-3">
                 <View className="bg-accent/10 p-2 rounded-lg mr-3">
                   <Ionicons name="refresh-circle" size={24} color="green" />
                 </View>
                 <View>
-                  <Text className="text-text-primary font-bold text-lg">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-bold text-lg`}
+                  >
                     Membership {membershipDetailsData?.user?.status}
                   </Text>
-                  <Text className="text-text-secondary">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    }`}
+                  >
                     Renew your membership to continue enjoying our services
                   </Text>
                 </View>
@@ -316,12 +450,22 @@ export default function Dashboard() {
           ) : null}
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
             <View className="bg-primary/10 p-2 rounded-lg mr-3">
               <Ionicons name="calendar-outline" size={22} color="#2563EB" />
             </View>
-            <Text className="text-text-primary text-lg font-bold">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold`}
+            >
               Membership Details
             </Text>
           </View>
@@ -329,7 +473,11 @@ export default function Dashboard() {
           <View className="space-y-3">
             {renderMembershipDates()}
 
-            <View className="bg-light-100 rounded-lg p-4">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              } rounded-lg p-4`}
+            >
               <View className="flex-row items-center mb-2">
                 <Ionicons
                   name="pricetag-outline"
@@ -337,22 +485,44 @@ export default function Dashboard() {
                   color="#2563EB"
                   className="mr-2"
                 />
-                <Text className="text-text-primary font-bold">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } font-bold`}
+                >
                   Rate Information
                 </Text>
               </View>
               <View className="pl-6">
                 <View className="mb-3">
-                  <Text className="text-text-secondary text-sm">Rate Name</Text>
-                  <Text className="text-text-primary font-medium">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    } text-sm`}
+                  >
+                    Rate Name
+                  </Text>
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-medium`}
+                  >
                     {membershipDetailsData?.user?.rateName}
                   </Text>
                 </View>
                 <View>
-                  <Text className="text-text-secondary text-sm">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    } text-sm`}
+                  >
                     Rate Validity
                   </Text>
-                  <Text className="text-text-primary font-medium">
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } font-medium`}
+                  >
                     {membershipDetailsData?.user?.rateValidity}
                   </Text>
                 </View>

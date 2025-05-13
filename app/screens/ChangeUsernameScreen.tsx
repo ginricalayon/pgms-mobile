@@ -15,10 +15,12 @@ import { InputField } from "../../components/common/InputField";
 import { memberService } from "../../services";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function ChangeUsernameScreen() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
+  const { isDarkMode } = useTheme();
   const [currentUsername, setCurrentUsername] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -168,21 +170,47 @@ export default function ChangeUsernameScreen() {
               onPress={() => router.back()}
               className="p-2 -ml-2"
             >
-              <Ionicons name="arrow-back" size={24} color="#1E90FF" />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={isDarkMode ? "#60A5FA" : "#1E90FF"}
+              />
             </TouchableOpacity>
-            <Text className="text-text-primary text-2xl font-bold mx-auto pr-10">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-2xl font-bold mx-auto pr-10`}
+            >
               Change Username
             </Text>
           </View>
 
           <View className="mb-6">
-            <Text className="text-dark-100 mb-4">
+            <Text
+              className={`${
+                isDarkMode ? "text-gray-300" : "text-dark-100"
+              } mb-4`}
+            >
               Enter a new username and your password to verify this change.
             </Text>
 
-            <View className="bg-light-100 p-4 rounded-lg mb-4">
-              <Text className="text-dark-100 text-sm">Current Username</Text>
-              <Text className="text-dark-200 font-medium mt-1">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              } p-4 rounded-lg mb-4`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-dark-100"
+                } text-sm`}
+              >
+                Current Username
+              </Text>
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-dark-200"
+                } font-medium mt-1`}
+              >
                 {currentUsername}
               </Text>
             </View>

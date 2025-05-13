@@ -7,9 +7,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { memberService } from "../../../services";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { LoadingView } from "../../../components/common/LoadingView";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function SelectSchedule() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
   const { rateId, trainerId, totalAmount, withPT, ptRateId } =
     useLocalSearchParams();
   const [loading, setLoading] = useState(true);
@@ -114,7 +116,12 @@ export default function SelectSchedule() {
   };
 
   if (loading) {
-    return <LoadingView message="Loading available schedules..." />;
+    return (
+      <LoadingView
+        message="Loading available schedules..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error) {
@@ -134,15 +141,29 @@ export default function SelectSchedule() {
           title: "Select Schedule",
           headerShown: true,
           headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: isDarkMode ? "#111827" : "#fff",
+          },
+          headerTitleStyle: {
+            color: isDarkMode ? "#fff" : "#000",
+          },
         }}
       />
 
       <View className="flex-1 px-4 py-6">
         <View className="mb-6">
-          <Text className="text-text-primary text-2xl font-bold mb-2">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold mb-2`}
+          >
             Choose Your Schedule
           </Text>
-          <Text className="text-text-secondary">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            }`}
+          >
             Select one time slot for each available day.
           </Text>
         </View>
@@ -151,7 +172,11 @@ export default function SelectSchedule() {
           <View className="h-8 w-8 rounded-full bg-accent items-center justify-center mr-2">
             <Text className="text-white font-bold">3</Text>
           </View>
-          <Text className="text-text-primary font-medium">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } font-medium`}
+          >
             Step 3 of 4: Schedule Selection
           </Text>
         </View>
@@ -173,6 +198,8 @@ export default function SelectSchedule() {
                           ? "bg-accent"
                           : hasSelectedSlot(date)
                           ? "bg-accent/30"
+                          : isDarkMode
+                          ? "bg-gray-800"
                           : "bg-light-100"
                       }`}
                       onPress={() => handleDaySelection(date)}
@@ -180,6 +207,8 @@ export default function SelectSchedule() {
                       <Text
                         className={`font-medium ${
                           selectedDay === date || hasSelectedSlot(date)
+                            ? "text-white"
+                            : isDarkMode
                             ? "text-white"
                             : "text-text-primary"
                         }`}
@@ -192,7 +221,9 @@ export default function SelectSchedule() {
               </ScrollView>
             </View>
 
-            <ScrollView className="flex-1 bg-white">
+            <ScrollView
+              className={`flex-1 ${isDarkMode ? "bg-gray-900" : "bg-white"}`}
+            >
               <View className="space-y-3">
                 {getSchedulesForSelectedDay().length > 0 ? (
                   getSchedulesForSelectedDay().map((slot) => (
@@ -202,6 +233,8 @@ export default function SelectSchedule() {
                         selectedSlots[selectedDay as string]?.ptScheduleId ===
                         slot.ptScheduleId
                           ? "border-accent bg-accent/10"
+                          : isDarkMode
+                          ? "border-gray-700 bg-gray-800"
                           : "border-light-200 bg-white"
                       }`}
                       onPress={() => handleSlotSelection(slot)}
@@ -211,9 +244,13 @@ export default function SelectSchedule() {
                           <Ionicons
                             name="time-outline"
                             size={20}
-                            color="#2563EB"
+                            color={isDarkMode ? "#60A5FA" : "#2563EB"}
                           />
-                          <Text className="text-text-primary font-medium ml-2">
+                          <Text
+                            className={`${
+                              isDarkMode ? "text-white" : "text-text-primary"
+                            } font-medium ml-2`}
+                          >
                             {slot.startTime} - {slot.endTime}
                           </Text>
                         </View>
@@ -222,15 +259,23 @@ export default function SelectSchedule() {
                           <Ionicons
                             name="checkmark-circle"
                             size={24}
-                            color="#2563EB"
+                            color={isDarkMode ? "#60A5FA" : "#2563EB"}
                           />
                         )}
                       </View>
                     </TouchableOpacity>
                   ))
                 ) : (
-                  <View className="py-8 items-center bg-white">
-                    <Text className="text-text-secondary text-center">
+                  <View
+                    className={`py-8 items-center ${
+                      isDarkMode ? "bg-gray-900" : "bg-white"
+                    }`}
+                  >
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-300" : "text-text-secondary"
+                      } text-center`}
+                    >
                       No time slots available for this day. Please select
                       another day.
                     </Text>
@@ -240,8 +285,16 @@ export default function SelectSchedule() {
             </ScrollView>
           </>
         ) : (
-          <View className="flex-1 justify-center items-center p-8 bg-white">
-            <Text className="text-text-secondary text-center">
+          <View
+            className={`flex-1 justify-center items-center p-8 ${
+              isDarkMode ? "bg-gray-900" : "bg-white"
+            }`}
+          >
+            <Text
+              className={`${
+                isDarkMode ? "text-gray-300" : "text-text-secondary"
+              } text-center`}
+            >
               No schedules available at the moment. Please try again later.
             </Text>
           </View>
@@ -249,7 +302,11 @@ export default function SelectSchedule() {
 
         <View className="mt-6">
           <View className="mb-4">
-            <Text className="text-center text-text-secondary">
+            <Text
+              className={`text-center ${
+                isDarkMode ? "text-gray-300" : "text-text-secondary"
+              }`}
+            >
               {getSelectedDaysCount()} day
               {getSelectedDaysCount() !== 1 ? "s" : ""} selected
             </Text>

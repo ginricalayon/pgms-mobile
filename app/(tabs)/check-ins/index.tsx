@@ -10,6 +10,7 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { Container } from "../../../components/common/Container";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { memberService } from "../../../services";
 import { router } from "expo-router";
@@ -25,24 +26,29 @@ interface CheckIn {
 
 const screenWidth = Dimensions.get("window").width;
 
-const chartConfig = {
-  backgroundGradientFrom: "#ffffff",
-  backgroundGradientTo: "#ffffff",
-  color: (opacity = 1) => `rgba(25, 118, 210, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  decimalPlaces: 0,
-  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  propsForLabels: {
-    fontSize: 10,
-  },
-  style: {
-    borderRadius: 16,
-  },
-};
-
 const CheckInChart = ({ data }: { data: CheckIn[] }) => {
+  const { isDarkMode } = useTheme();
+
+  const chartConfig = {
+    backgroundGradientFrom: isDarkMode ? "#1F2937" : "#ffffff",
+    backgroundGradientTo: isDarkMode ? "#1F2937" : "#ffffff",
+    color: (opacity = 1) =>
+      `rgba(${isDarkMode ? "96, 165, 250" : "25, 118, 210"}, ${opacity})`,
+    strokeWidth: 2,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+    decimalPlaces: 0,
+    labelColor: (opacity = 1) =>
+      `rgba(${isDarkMode ? "255, 255, 255" : "0, 0, 0"}, ${opacity})`,
+    propsForLabels: {
+      fontSize: 10,
+      fill: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    style: {
+      borderRadius: 16,
+    },
+  };
+
   const processCheckInsForChart = () => {
     const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dayCount = Array(7).fill(0);
@@ -58,7 +64,8 @@ const CheckInChart = ({ data }: { data: CheckIn[] }) => {
       datasets: [
         {
           data: dayCount,
-          color: (opacity = 1) => `rgba(25, 118, 210, ${opacity})`,
+          color: (opacity = 1) =>
+            `rgba(${isDarkMode ? "96, 165, 250" : "25, 118, 210"}, ${opacity})`,
         },
       ],
     };
@@ -70,14 +77,22 @@ const CheckInChart = ({ data }: { data: CheckIn[] }) => {
         style={{
           width: "100%",
           height: 240,
-          backgroundColor: "white",
+          backgroundColor: isDarkMode ? "#1F2937" : "white",
           borderRadius: 16,
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <Ionicons name="bar-chart-outline" size={60} color="#1976D2" />
-        <Text className="text-dark-100 mt-2 text-center">
+        <Ionicons
+          name="bar-chart-outline"
+          size={60}
+          color={isDarkMode ? "#60A5FA" : "#1976D2"}
+        />
+        <Text
+          className={`${
+            isDarkMode ? "text-gray-300" : "text-dark-100"
+          } mt-2 text-center`}
+        >
           No check-in data available yet
         </Text>
       </View>
@@ -90,7 +105,7 @@ const CheckInChart = ({ data }: { data: CheckIn[] }) => {
     <View
       style={{
         alignItems: "center",
-        backgroundColor: "white",
+        backgroundColor: isDarkMode ? "#1F2937" : "white",
         width: "100%",
       }}
     >
@@ -118,6 +133,7 @@ const CheckInChart = ({ data }: { data: CheckIn[] }) => {
 
 export default function CheckIns() {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
@@ -171,7 +187,12 @@ export default function CheckIns() {
   const recentCheckIns = checkIns.slice(0, 4);
 
   if (loading && !refreshing) {
-    return <LoadingView message="Loading check-in data..." />;
+    return (
+      <LoadingView
+        message="Loading check-in data..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error && !refreshing) {
@@ -194,36 +215,72 @@ export default function CheckIns() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#2563EB"]}
-            tintColor="#2563EB"
+            colors={[isDarkMode ? "#808080" : "#2563EB"]}
+            tintColor={isDarkMode ? "#808080" : "#2563EB"}
             title="Pull to refresh"
-            titleColor="#2563EB"
+            titleColor={isDarkMode ? "#808080" : "#2563EB"}
           />
         }
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text className="text-text-primary text-2xl font-bold">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
             Check-Ins
           </Text>
         </View>
 
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Ionicons name="bar-chart-outline" size={22} color="#2563EB" />
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Ionicons
+              name="bar-chart-outline"
+              size={22}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Gym Attendance Overview
             </Text>
           </View>
-          <Text className="text-text-secondary mb-4">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            } mb-4`}
+          >
             Track your gym visits and workout patterns
           </Text>
         </View>
 
         {/* Chart Section */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Ionicons name="calendar-outline" size={22} color="#2563EB" />
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Ionicons
+              name="calendar-outline"
+              size={22}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Weekly Attendance
             </Text>
           </View>
@@ -231,17 +288,37 @@ export default function CheckIns() {
         </View>
 
         {/* Recent Check-ins List */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-20 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-20 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row justify-between items-center mb-4">
             <View className="flex-row items-center">
-              <Ionicons name="time-outline" size={22} color="#2563EB" />
-              <Text className="text-text-primary text-lg font-bold ml-2">
+              <Ionicons
+                name="time-outline"
+                size={22}
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
+              />
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-lg font-bold ml-2`}
+              >
                 Recent Check-Ins
               </Text>
             </View>
             {checkIns.length > 4 && (
               <TouchableOpacity onPress={navigateToAllCheckIns}>
-                <Text className="text-accent font-medium">See All</Text>
+                <Text
+                  className={`${
+                    isDarkMode ? "text-blue-400" : "text-accent"
+                  } font-medium`}
+                >
+                  See All
+                </Text>
               </TouchableOpacity>
             )}
           </View>
@@ -250,29 +327,63 @@ export default function CheckIns() {
             recentCheckIns.map((checkIn, index) => (
               <View
                 key={index}
-                className="bg-light-100 rounded-lg p-4 mb-4 flex-row justify-between items-center"
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-100"
+                } rounded-lg p-4 mb-4 flex-row justify-between items-center`}
               >
                 <View className="flex-row items-center">
-                  <Ionicons name="calendar-outline" size={20} color="#2563EB" />
-                  <Text className="text-text-primary ml-2">
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
                     {new Date(checkIn.date).toLocaleDateString()}
                   </Text>
                 </View>
                 <View className="flex-row items-center">
-                  <Ionicons name="time-outline" size={20} color="#2563EB" />
-                  <Text className="text-text-primary ml-2">
+                  <Ionicons
+                    name="time-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
                     {checkIn.timeIn}
                   </Text>
                 </View>
               </View>
             ))
           ) : (
-            <View className="bg-light-100 rounded-lg p-4 mb-4 items-center">
-              <MaterialIcons name="history" size={40} color="#2563EB" />
-              <Text className="text-text-primary text-lg font-medium mt-2 mb-1">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              } rounded-lg p-4 mb-4 items-center`}
+            >
+              <MaterialIcons
+                name="history"
+                size={40}
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
+              />
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-lg font-medium mt-2 mb-1`}
+              >
                 No check-ins yet
               </Text>
-              <Text className="text-text-secondary text-center">
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-text-secondary"
+                } text-center`}
+              >
                 Your gym visits will appear here once you check in
               </Text>
             </View>

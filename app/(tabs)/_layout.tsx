@@ -1,8 +1,11 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function TabsLayout() {
+  const { isDarkMode } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
@@ -11,17 +14,17 @@ export default function TabsLayout() {
           fontSize: 11,
           fontWeight: "600",
         },
-        tabBarActiveTintColor: "#2563EB",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarActiveTintColor: isDarkMode ? "#60A5FA" : "#2563EB",
+        tabBarInactiveTintColor: isDarkMode ? "#9CA3AF" : "#9CA3AF",
         tabBarStyle: {
           position: "absolute",
           bottom: 20,
           left: 20,
           right: 20,
-          backgroundColor: "#FFFFFF",
+          backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
           borderTopWidth: 0,
           borderWidth: 1,
-          borderColor: "#E5E7EB",
+          borderColor: isDarkMode ? "#374151" : "#E5E7EB",
           height: 60,
           elevation: 10,
           shadowColor: "#000",

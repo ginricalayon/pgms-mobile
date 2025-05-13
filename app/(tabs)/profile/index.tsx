@@ -13,6 +13,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Container } from "../../../components/common/Container";
 import { Button } from "../../../components/common/Button";
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { memberService } from "../../../services";
 import ProfileInfo from "../../../components/ProfileInfo";
@@ -22,6 +23,7 @@ import { ErrorView } from "../../../components/common/ErrorView";
 
 export default function Profile() {
   const { user, logout } = useAuth();
+  const { isDarkMode } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +97,12 @@ export default function Profile() {
   };
 
   if (loading) {
-    return <LoadingView message="Loading profile..." />;
+    return (
+      <LoadingView
+        message="Loading profile..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error) {
@@ -116,12 +123,28 @@ export default function Profile() {
         }`}
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text className="text-text-primary text-2xl font-bold">Profile</Text>
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
+            Profile
+          </Text>
         </View>
 
         {/* Profile Image Section */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200 items-center">
-          <View className="bg-light-100 rounded-full h-32 w-32 items-center justify-center mb-4">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          } items-center`}
+        >
+          <View
+            className={`${
+              isDarkMode ? "bg-gray-700" : "bg-light-100"
+            } rounded-full h-32 w-32 items-center justify-center mb-4`}
+          >
             {profileData?.user?.picture && (
               <Image
                 source={{
@@ -133,7 +156,11 @@ export default function Profile() {
             )}
           </View>
           <View className="flex-row items-center">
-            <Text className="text-text-primary text-xl font-bold">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-xl font-bold`}
+            >
               {profileData?.user?.firstName && profileData?.user?.lastName
                 ? `${profileData.user.firstName} ${profileData.user.lastName}`
                 : "Member"}
@@ -152,45 +179,95 @@ export default function Profile() {
               </TouchableOpacity>
             )}
           </View>
-          <Text className="text-text-secondary mt-1">
+          <Text
+            className={`${
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
+            } mt-1`}
+          >
             Member ID: {profileData?.user?.membershipId || "N/A"}
           </Text>
           {tooltipVisible && (
             <View
-              className="absolute z-10 bg-white p-2 rounded shadow-lg"
+              className={`absolute z-10 ${
+                isDarkMode ? "bg-gray-700" : "bg-white"
+              } p-2 rounded shadow-lg`}
               style={{ top: 170, left: 170 }}
             >
-              <Text className="text-text-primary text-xs">Regular Member</Text>
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-xs`}
+              >
+                Regular Member
+              </Text>
             </View>
           )}
         </View>
 
         {/* Profile Information */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-6 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-6 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Ionicons name="person-circle-outline" size={22} color="#2563EB" />
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Ionicons
+              name="person-circle-outline"
+              size={22}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Personal Information
             </Text>
           </View>
-          <ProfileInfo label="Gender" value={profileData?.user?.gender} />
+          <ProfileInfo
+            label="Gender"
+            value={profileData?.user?.gender}
+            darkMode={isDarkMode}
+          />
           <ProfileInfo
             label="Birthdate"
             value={formatDate(profileData?.user?.birthdate)}
+            darkMode={isDarkMode}
           />
-          <ProfileInfo label="Address" value={profileData?.user?.address} />
+          <ProfileInfo
+            label="Address"
+            value={profileData?.user?.address}
+            darkMode={isDarkMode}
+          />
           <ProfileInfo
             label="Phone Number"
             value={profileData?.user?.phoneNumber}
             isLast={true}
+            darkMode={isDarkMode}
           />
         </View>
 
         {/* Actions */}
-        <View className="bg-white rounded-xl p-6 shadow-sm mb-20 border border-light-200">
+        <View
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } rounded-xl p-6 shadow-sm mb-20 border ${
+            isDarkMode ? "border-gray-700" : "border-light-200"
+          }`}
+        >
           <View className="flex-row items-center mb-4">
-            <Ionicons name="settings-outline" size={22} color="#2563EB" />
-            <Text className="text-text-primary text-lg font-bold ml-2">
+            <Ionicons
+              name="settings-outline"
+              size={22}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-lg font-bold ml-2`}
+            >
               Account Settings
             </Text>
           </View>

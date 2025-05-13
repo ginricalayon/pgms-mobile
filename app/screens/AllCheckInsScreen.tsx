@@ -13,9 +13,11 @@ import { memberService } from "../../services";
 import { router } from "expo-router";
 import { LoadingView } from "../../components/common/LoadingView";
 import { ErrorView } from "../../components/common/ErrorView";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function AllCheckInsScreen() {
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
@@ -66,7 +68,12 @@ export default function AllCheckInsScreen() {
   };
 
   if (loading && !refreshing) {
-    return <LoadingView message="Loading check-in data..." />;
+    return (
+      <LoadingView
+        message="Loading check-in data..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
   }
 
   if (error && !refreshing) {
@@ -96,9 +103,17 @@ export default function AllCheckInsScreen() {
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
           <TouchableOpacity onPress={goBack} className="p-2">
-            <Ionicons name="arrow-back" size={24} color="#1E90FF" />
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={isDarkMode ? "#60A5FA" : "#1E90FF"}
+            />
           </TouchableOpacity>
-          <Text className="text-text-primary text-2xl font-bold">
+          <Text
+            className={`${
+              isDarkMode ? "text-white" : "text-text-primary"
+            } text-2xl font-bold`}
+          >
             All Check-Ins
           </Text>
           <View style={{ width: 24 }}>{/* Empty View for alignment */}</View>
@@ -110,29 +125,59 @@ export default function AllCheckInsScreen() {
             checkIns.map((checkIn, index) => (
               <View
                 key={index}
-                className="bg-light-100 rounded-lg p-4 mb-4 flex-row justify-between items-center"
+                className={`${
+                  isDarkMode ? "bg-gray-800" : "bg-light-100"
+                } rounded-lg p-4 mb-4 flex-row justify-between items-center`}
               >
                 <View className="flex-row items-center">
-                  <Ionicons name="calendar-outline" size={20} color="#1976D2" />
-                  <Text className="text-text-primary ml-2">
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#1976D2"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
                     {new Date(checkIn.date).toLocaleDateString()}
                   </Text>
                 </View>
                 <View className="flex-row items-center">
-                  <Ionicons name="time-outline" size={20} color="#1976D2" />
-                  <Text className="text-text-primary ml-2">
+                  <Ionicons
+                    name="time-outline"
+                    size={20}
+                    color={isDarkMode ? "#60A5FA" : "#1976D2"}
+                  />
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } ml-2`}
+                  >
                     {checkIn.timeIn}
                   </Text>
                 </View>
               </View>
             ))
           ) : error ? (
-            <View className="bg-light-100 rounded-lg p-4 mb-4 items-center">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-light-100"
+              } rounded-lg p-4 mb-4 items-center`}
+            >
               <Text className="text-red-500">{error}</Text>
             </View>
           ) : (
-            <View className="bg-light-100 rounded-lg p-4 mb-4 items-center">
-              <Text className="text-dark-200 text-lg mb-4">
+            <View
+              className={`${
+                isDarkMode ? "bg-gray-800" : "bg-light-100"
+              } rounded-lg p-4 mb-4 items-center`}
+            >
+              <Text
+                className={`${
+                  isDarkMode ? "text-gray-300" : "text-dark-200"
+                } text-lg mb-4`}
+              >
                 No check-ins found
               </Text>
             </View>

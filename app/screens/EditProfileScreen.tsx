@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  ActivityIndicator,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
@@ -17,14 +16,17 @@ import { InputField } from "../../components/common/InputField";
 import { Ionicons } from "@expo/vector-icons";
 import { memberService } from "../../services";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { formatDate } from "../../utils/dateUtils";
 import { LoadingView } from "../../components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { profileData: profileDataParam } = useLocalSearchParams();
   const { user } = useAuth();
+  const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -367,7 +369,22 @@ export default function EditProfileScreen() {
   };
 
   if (loading) {
-    return <LoadingView message="Loading profile data..." />;
+    return (
+      <LoadingView
+        message="Loading profile data..."
+        color={isDarkMode ? "#808080" : "#2563EB"}
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorView
+        title="Error loading profile data"
+        message={error}
+        onRetry={fetchProfile}
+      />
+    );
   }
 
   return (
@@ -376,194 +393,269 @@ export default function EditProfileScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-4 py-6 mt-4">
-          {/* Header with back button */}
+        <ScrollView className="flex-1 px-4 py-6">
           <View className="flex-row items-center mb-6">
             <TouchableOpacity
               onPress={() => router.back()}
               className="p-2 -ml-2"
             >
-              <Ionicons name="arrow-back" size={24} color="#1E90FF" />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={isDarkMode ? "#60A5FA" : "#1E90FF"}
+              />
             </TouchableOpacity>
-            <Text className="text-text-primary text-2xl font-bold mx-auto pr-10">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-2xl font-bold mx-auto pr-10`}
+            >
               Edit Profile
             </Text>
           </View>
 
-          {error && (
-            <View className="bg-red-100 p-3 rounded-lg mb-4">
-              <Text className="text-red-500">{error}</Text>
-            </View>
-          )}
-
-          <InputField
-            label="First Name"
-            placeholder="Enter your first name"
-            value={firstName}
-            onChangeText={(text) => handleFieldChange("firstName", text)}
-            error={errors.firstName}
-            autoCapitalize="words"
-          />
-
-          <InputField
-            label="Last Name"
-            placeholder="Enter your last name"
-            value={lastName}
-            onChangeText={(text) => handleFieldChange("lastName", text)}
-            error={errors.lastName}
-            autoCapitalize="words"
-          />
-
-          {/* Gender Dropdown */}
-          <View className="mb-4">
-            <Text className="text-dark-200 font-medium mb-1 text-sm">
-              Gender
-            </Text>
-            <TouchableOpacity
-              onPress={() => setShowGenderModal(true)}
-              className="bg-light-100 p-4 rounded-lg flex-row justify-between items-center"
+          <View className="space-y-4">
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-xl font-bold`}
             >
-              <Text className={gender ? "text-dark-200" : "text-blue-300"}>
-                {gender || "Select your gender"}
-              </Text>
-              <Ionicons name="chevron-down" size={20} color="#64B5F6" />
-            </TouchableOpacity>
-            {errors.gender ? (
-              <Text className="text-red-500 mt-1 text-xs">{errors.gender}</Text>
-            ) : null}
-          </View>
-
-          {/* Gender Selection Modal */}
-          <Modal
-            visible={showGenderModal}
-            transparent
-            animationType="fade"
-            onRequestClose={() => setShowGenderModal(false)}
-          >
-            <View className="flex-1 justify-center items-center bg-black/50">
-              <View className="bg-white w-4/5 rounded-lg p-4">
-                <Text className="text-dark-200 font-bold text-lg mb-4 text-center">
-                  Select Gender
-                </Text>
-
-                {genderOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option}
-                    onPress={() => handleSelectGender(option)}
-                    className={`p-3 border-b border-gray-100 ${
-                      option === gender ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <Text
-                      className={`${
-                        option === gender
-                          ? "text-blue-500 font-medium"
-                          : "text-dark-200"
-                      }`}
-                    >
-                      {option}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-
-                <TouchableOpacity
-                  onPress={() => setShowGenderModal(false)}
-                  className="mt-4 p-3 bg-gray-100 rounded-lg"
-                >
-                  <Text className="text-dark-200 text-center font-medium">
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-
-          {/* Birthdate Field */}
-          <View className="mb-4">
-            <Text className="text-dark-200 font-medium mb-1 text-sm">
-              Birthdate
+              Personal Information
             </Text>
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              className="bg-light-100 p-4 rounded-lg flex-row justify-between items-center"
-            >
-              <Text className="text-dark-200">
-                {formatDate(birthdate.toISOString())}
-              </Text>
-              <Ionicons name="calendar-outline" size={20} color="#64B5F6" />
-            </TouchableOpacity>
-            {errors.birthdate ? (
-              <Text className="text-red-500 mt-1 text-xs">
-                {errors.birthdate}
-              </Text>
-            ) : null}
-          </View>
 
-          {/* Date Picker */}
-          {showDatePicker && (
-            <DateTimePicker
-              value={birthdate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-              maximumDate={new Date()}
-              style={{ marginBottom: 10 }}
+            <InputField
+              label="First Name"
+              placeholder="Enter your first name"
+              value={firstName}
+              onChangeText={(text) => handleFieldChange("firstName", text)}
+              error={errors.firstName}
             />
-          )}
 
-          {/* Address Fields */}
-          <View className="mb-2">
-            <Text className="text-dark-200 font-medium mb-2 text-base">
-              Address
+            <InputField
+              label="Last Name"
+              placeholder="Enter your last name"
+              value={lastName}
+              onChangeText={(text) => handleFieldChange("lastName", text)}
+              error={errors.lastName}
+            />
+
+            <View className="mb-4">
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-medium mb-1 text-sm`}
+              >
+                Gender
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowGenderModal(true)}
+                className={`flex-row items-center justify-between ${
+                  isDarkMode
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-light-100 border-light-200"
+                } border rounded-lg p-4 ${errors.gender ? "border-error" : ""}`}
+              >
+                <Text
+                  className={`${
+                    isDarkMode
+                      ? gender
+                        ? "text-white"
+                        : "text-gray-500"
+                      : gender
+                      ? "text-text-primary"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {gender || "Select your gender"}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                />
+              </TouchableOpacity>
+              {errors.gender ? (
+                <View className="flex-row items-center mt-1">
+                  <Ionicons name="alert-circle" size={16} color="#EF4444" />
+                  <Text className="text-error ml-1 text-xs">
+                    {errors.gender}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+
+            <View className="mb-4">
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } font-medium mb-1 text-sm`}
+              >
+                Birthdate
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                className={`flex-row items-center justify-between ${
+                  isDarkMode
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-light-100 border-light-200"
+                } border rounded-lg p-4 ${
+                  errors.birthdate ? "border-error" : ""
+                }`}
+              >
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  }`}
+                >
+                  {formatDate(birthdate.toString())}
+                </Text>
+                <Ionicons
+                  name="calendar"
+                  size={20}
+                  color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                />
+              </TouchableOpacity>
+              {errors.birthdate ? (
+                <View className="flex-row items-center mt-1">
+                  <Ionicons name="alert-circle" size={16} color="#EF4444" />
+                  <Text className="text-error ml-1 text-xs">
+                    {errors.birthdate}
+                  </Text>
+                </View>
+              ) : null}
+              {showDatePicker && (
+                <DateTimePicker
+                  value={birthdate}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  maximumDate={new Date()}
+                />
+              )}
+            </View>
+
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-xl font-bold mt-4`}
+            >
+              Address Information
             </Text>
+
+            <InputField
+              label="Street Address"
+              placeholder="Enter your street address"
+              value={street}
+              onChangeText={(text) => handleFieldChange("street", text)}
+              error={errors.street}
+            />
+
+            <InputField
+              label="Barangay"
+              placeholder="Enter your barangay"
+              value={barangay}
+              onChangeText={(text) => handleFieldChange("barangay", text)}
+              error={errors.barangay}
+            />
+
+            <InputField
+              label="City"
+              placeholder="Enter your city"
+              value={city}
+              onChangeText={(text) => handleFieldChange("city", text)}
+              error={errors.city}
+            />
+
+            <Text
+              className={`${
+                isDarkMode ? "text-white" : "text-text-primary"
+              } text-xl font-bold mt-4`}
+            >
+              Contact Information
+            </Text>
+
+            <InputField
+              label="Phone Number"
+              placeholder="Enter your phone number"
+              value={phoneNumber}
+              onChangeText={(text) => handleFieldChange("phoneNumber", text)}
+              keyboardType="phone-pad"
+              error={errors.phoneNumber}
+            />
           </View>
 
-          <InputField
-            label="Street"
-            placeholder="Enter your street address (letters and numbers)"
-            value={street}
-            onChangeText={(text) => handleFieldChange("street", text)}
-            error={errors.street}
-            autoCapitalize="sentences"
-          />
-
-          <InputField
-            label="Barangay"
-            placeholder="Enter your barangay (letters only)"
-            value={barangay}
-            onChangeText={(text) => handleFieldChange("barangay", text)}
-            error={errors.barangay}
-            autoCapitalize="words"
-          />
-
-          <InputField
-            label="City"
-            placeholder="Enter your city (letters only)"
-            value={city}
-            onChangeText={(text) => handleFieldChange("city", text)}
-            error={errors.city}
-            autoCapitalize="words"
-          />
-
-          <InputField
-            label="Phone Number"
-            placeholder="Enter your phone number (09XXXXXXXXX)"
-            value={phoneNumber}
-            onChangeText={(text) => handleFieldChange("phoneNumber", text)}
-            error={errors.phoneNumber}
-            keyboardType="phone-pad"
-          />
-
-          <View className="mt-6 mb-4">
+          <View className="mt-8 mb-10">
             <Button
-              title={submitting ? "Saving..." : "Save Changes"}
+              title={submitting ? "Saving Changes..." : "Save Changes"}
               onPress={handleSubmitButton}
-              fullWidth
               disabled={submitting}
+              fullWidth
             />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={showGenderModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowGenderModal(false)}
+      >
+        <View className="flex-1 justify-end bg-black/50">
+          <View
+            className={`${
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            } rounded-t-3xl p-6`}
+          >
+            <View className="flex-row justify-between items-center mb-6">
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-xl font-bold`}
+              >
+                Select Gender
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowGenderModal(false)}
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-100"
+                } rounded-full p-2`}
+              >
+                <Ionicons
+                  name="close"
+                  size={24}
+                  color={isDarkMode ? "#FFFFFF" : "#1E90FF"}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {genderOptions.map((option) => (
+              <TouchableOpacity
+                key={option}
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-100"
+                } p-4 rounded-lg mb-3 flex-row justify-between items-center`}
+                onPress={() => handleSelectGender(option)}
+              >
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } text-lg`}
+                >
+                  {option}
+                </Text>
+                {gender === option && (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </Container>
   );
 }
