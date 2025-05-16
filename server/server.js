@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 const db = require("./config/database");
 const { checkTables } = require("./config/checkDb");
@@ -30,6 +31,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from the root directory
+app.use(express.static(path.join(__dirname, "..")));
 
 // Routes
 app.use("/api/auth", authRoutes);

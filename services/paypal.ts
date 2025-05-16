@@ -1,18 +1,15 @@
 import axios from "axios";
 
-// PayPal Sandbox API URLs
 const PAYPAL_API_URL = "https://api-m.sandbox.paypal.com";
 const PAYPAL_CLIENT_ID =
-  "AfQlYUz6omwna7XDh1DU4thyTnvdxAOMjoSheac8tqoHHBSiVQDHausDhnw2vlLTxVopqLdMkD08MmKk"; // Replace with your PayPal client ID
+  "AfQlYUz6omwna7XDh1DU4thyTnvdxAOMjoSheac8tqoHHBSiVQDHausDhnw2vlLTxVopqLdMkD08MmKk";
 const PAYPAL_SECRET =
-  "EFb-BkX2fltQO2P7hP68hNBje0_k5A9nIxIDZ5oKRYGX7FuJWkw7KJcz6zKO0FRNqIDSq9NlkTpUWOCw"; // Replace with your PayPal secret
+  "EFb-BkX2fltQO2P7hP68hNBje0_k5A9nIxIDZ5oKRYGX7FuJWkw7KJcz6zKO0FRNqIDSq9NlkTpUWOCw";
 
-// Replace this with your actual ngrok HTTPS URL
-const NGROK_URL = "https://c752-131-226-103-34.ngrok-free.app";
+const NGROK_URL = "https://dear-snapper-explicitly.ngrok-free.app";
 const RETURN_URL = `${NGROK_URL}/success.html`;
 const CANCEL_URL = `${NGROK_URL}/cancel.html`;
 
-// Function to get PayPal access token
 export const getPayPalAccessToken = async () => {
   try {
     const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`);
@@ -33,7 +30,6 @@ export const getPayPalAccessToken = async () => {
   }
 };
 
-// Function to create a PayPal order
 export const createPayPalOrder = async (
   amount: number,
   currency: string = "PHP"
@@ -74,7 +70,6 @@ export const createPayPalOrder = async (
   }
 };
 
-// Function to capture a PayPal payment
 export const capturePayPalPayment = async (orderId: string) => {
   try {
     const accessToken = await getPayPalAccessToken();
