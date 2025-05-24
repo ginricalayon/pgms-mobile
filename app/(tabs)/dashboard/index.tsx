@@ -17,6 +17,8 @@ import { formatDate } from "../../../utils/dateUtils";
 import { LoadingView } from "../../../components/common/LoadingView";
 import { ErrorView } from "../../../components/common/ErrorView";
 import { Button } from "../../../components/common/Button";
+import { FitnessAIDrawer } from "../../../components/common/FitnessAIDrawer";
+import { FloatingAIButton } from "../../../components/common/FloatingAIButton";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -29,6 +31,7 @@ export default function Dashboard() {
     user: membershipDetails;
   } | null>(null);
   const { refresh } = useLocalSearchParams();
+  const [isAIDrawerVisible, setIsAIDrawerVisible] = useState(false);
 
   const fetchMembershipDetails = async () => {
     try {
@@ -538,6 +541,12 @@ export default function Dashboard() {
           </View>
         </View>
       </ScrollView>
+
+      <FloatingAIButton onPress={() => setIsAIDrawerVisible(true)} />
+      <FitnessAIDrawer
+        visible={isAIDrawerVisible}
+        onClose={() => setIsAIDrawerVisible(false)}
+      />
     </Container>
   );
 }
