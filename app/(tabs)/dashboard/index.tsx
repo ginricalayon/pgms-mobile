@@ -7,7 +7,7 @@ import {
   Platform,
 } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Container } from "../../../components/common/Container";
 import { useAuth } from "../../../context/AuthContext";
 import { useTheme } from "../../../context/ThemeContext";
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [membershipDetailsData, setmembershipDetailsData] = useState<{
     user: membershipDetails;
   } | null>(null);
+  const { refresh } = useLocalSearchParams();
 
   const fetchMembershipDetails = async () => {
     try {
@@ -51,6 +52,12 @@ export default function Dashboard() {
 
     fetchMembershipDetails();
   }, [user]);
+
+  useEffect(() => {
+    if (refresh) {
+      fetchMembershipDetails();
+    }
+  }, [refresh]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

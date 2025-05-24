@@ -192,7 +192,8 @@ export default function PaymentScreen() {
         {
           text: "OK",
           onPress: () => {
-            router.replace("/(tabs)/dashboard" as any);
+            router.dismissAll();
+            router.push(`/(tabs)/dashboard?refresh=${Date.now()}`);
           },
         },
       ]);
