@@ -6,7 +6,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// StatusBar component that adapts to theme
 function ThemedStatusBar() {
   const { isDarkMode } = useTheme();
   return <StatusBar style={isDarkMode ? "light" : "dark"} />;
@@ -31,14 +30,6 @@ export default function RootLayout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="screens/Dashboard"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="screens/ProfileScreen"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
                 name="screens/EditProfileScreen"
                 options={{ headerShown: false }}
               />
@@ -47,19 +38,11 @@ export default function RootLayout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="screens/TransactionsScreen"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
                 name="screens/ChangePasswordScreen"
                 options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="screens/ChangeUsernameScreen"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="screens/VerifyPhoneScreen"
                 options={{ headerShown: false }}
               />
               <Stack.Screen

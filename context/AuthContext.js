@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { authService } from "../services";
+import { setAuthLogout } from "../middleware/authMiddleware";
 
 const AuthContext = createContext();
 
@@ -7,6 +8,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+  // Provide logout function to middleware
+  useEffect(() => {
+    setAuthLogout(logout);
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -38,15 +53,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, error: err.message || "Authentication failed" };
     } finally {
       setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await authService.logout();
-      setUser(null);
-    } catch (err) {
-      console.error("Logout error:", err);
     }
   };
 

@@ -89,7 +89,6 @@ export function MembershipStatusHandler({
         onRefresh={onRefresh}
         refreshing={refreshing}
         darkMode={darkMode}
-        buttonTitle="Avail Personal Trainer"
       />
     );
   }

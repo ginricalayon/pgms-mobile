@@ -117,3 +117,42 @@ exports.getCurrentUser = async (req, res) => {
     });
   }
 };
+
+// Verify token
+exports.verifyToken = async (req, res) => {
+  try {
+    // If we reach here, the token is valid (middleware already verified it)
+    const userId = req.user.id;
+
+    const [rows] = await db.execute(
+      "SELECT ma.id, ma.username, ma.membershipId, ma.customerId, c.firstName, c.lastName FROM member_account ma JOIN customer c ON c.customerId = ma.customerId WHERE ma.id = ?",
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Token is valid",
+      user: {
+        id: rows[0].id,
+        membershipId: rows[0].membershipId,
+        customerId: rows[0].customerId,
+        username: rows[0].username,
+        firstName: rows[0].firstName,
+        lastName: rows[0].lastName,
+      },
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during token verification",
+    });
+  }
+};

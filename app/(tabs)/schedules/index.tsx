@@ -9,9 +9,10 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { ErrorView } from "@/components/common/ErrorView";
 import { LoadingView } from "@/components/common/LoadingView";
 import { MembershipStatusHandler } from "@/components/MembershipStatusHandler";
+import { onRetry } from "@/utils/onRetry";
 
 export default function Schedules() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -91,20 +92,14 @@ export default function Schedules() {
   }, []);
 
   if (loading && !refreshing) {
-    return (
-      <LoadingView
-        message="Loading schedules..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error && !refreshing) {
     return (
       <ErrorView
-        title="We couldn't load your schedules"
         message={error}
-        onRetry={fetchSchedules}
+        onRetry={() => onRetry(fetchSchedules, error, logout)}
       />
     );
   }

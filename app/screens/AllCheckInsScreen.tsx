@@ -14,9 +14,10 @@ import { router } from "expo-router";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 import { useTheme } from "@/context/ThemeContext";
+import { onRetry } from "@/utils/onRetry";
 
 export default function AllCheckInsScreen() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -28,19 +29,16 @@ export default function AllCheckInsScreen() {
     try {
       setLoading(true);
       const response = await memberService.getCheckIns();
-      console.log("Response data:", response);
 
       if (response && response.checkIns && Array.isArray(response.checkIns)) {
         setCheckIns(response.checkIns);
       } else if (Array.isArray(response)) {
         setCheckIns(response);
       } else {
-        console.log("Received non-array data:", response);
         setCheckIns([]);
         setError("Invalid data format received");
       }
     } catch (err: any) {
-      console.log("Error fetching check ins:", err);
       setError(err.message || "Failed to load check-ins");
       setCheckIns([]);
     } finally {
@@ -65,20 +63,14 @@ export default function AllCheckInsScreen() {
   }, []);
 
   if (loading && !refreshing) {
-    return (
-      <LoadingView
-        message="Loading check-in data..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error && !refreshing) {
     return (
       <ErrorView
-        title="We couldn't load your check-in data"
         message={error}
-        onRetry={fetchCheckIns}
+        onRetry={() => onRetry(fetchCheckIns, error, logout)}
       />
     );
   }

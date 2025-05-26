@@ -21,11 +21,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { formatDate } from "@/utils/dateUtils";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
+import { onRetry } from "@/utils/onRetry";
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const { profileData: profileDataParam } = useLocalSearchParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -369,20 +370,14 @@ export default function EditProfileScreen() {
   };
 
   if (loading) {
-    return (
-      <LoadingView
-        message="Loading profile data..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="Error loading profile data"
         message={error}
-        onRetry={fetchProfile}
+        onRetry={() => onRetry(fetchProfile, error, logout)}
       />
     );
   }

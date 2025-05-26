@@ -16,9 +16,10 @@ import { router } from "expo-router";
 import { ErrorView } from "@/components/common/ErrorView";
 import { LoadingView } from "@/components/common/LoadingView";
 import { CheckInChart } from "@/components/CheckInChart";
+import { onRetry } from "@/utils/onRetry";
 
 export default function CheckIns() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,6 @@ export default function CheckIns() {
         setCheckIns(response);
         setError(null);
       } else {
-        console.log("Received non-array data:", response);
         setCheckIns([]);
         setError("Invalid data format received");
       }
@@ -70,20 +70,14 @@ export default function CheckIns() {
   const recentCheckIns = checkIns.slice(0, 4);
 
   if (loading && !refreshing) {
-    return (
-      <LoadingView
-        message="Loading check-in data..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error && !refreshing) {
     return (
       <ErrorView
-        title="We couldn't load your check-in data"
         message={error}
-        onRetry={fetchCheckIns}
+        onRetry={() => onRetry(fetchCheckIns, error, logout)}
       />
     );
   }

@@ -9,10 +9,13 @@ import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 import Decimal from "decimal.js";
 import { useTheme } from "@/context/ThemeContext";
+import { onRetry } from "@/utils/onRetry";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RenewalRateSelection() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
+  const { logout } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [rates, setRates] = useState<Rate[]>([]);
@@ -114,15 +117,14 @@ export default function RenewalRateSelection() {
   };
 
   if (loading) {
-    return <LoadingView message="Loading membership rates..." />;
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="We couldn't load membership rates"
         message={error}
-        onRetry={fetchMembershipRates}
+        onRetry={() => onRetry(fetchMembershipRates, error, logout)}
       />
     );
   }

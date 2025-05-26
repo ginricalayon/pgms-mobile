@@ -11,12 +11,15 @@ import { LoadingView } from "@/components/common/LoadingView";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { calculateEndDate } from "@/utils/calculateEndDate";
 import { useTheme } from "@/context/ThemeContext";
+import { onRetry } from "@/utils/onRetry";
+import { useAuth } from "@/context/AuthContext";
 // import * as Linking from "expo-linking";
 
 export default function PaymentScreen() {
   const { rateId, trainerId, scheduleIds, withPT, ptRateId, totalAmount } =
     useLocalSearchParams();
   const { isDarkMode } = useTheme();
+  const { logout } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
@@ -220,7 +223,6 @@ export default function PaymentScreen() {
         throw new Error("Could not find PayPal checkout URL");
       }
     } catch (error) {
-      console.error("PayPal payment error:", error);
       Alert.alert(
         "Payment Error",
         "Failed to initiate payment. Please try again."
@@ -232,20 +234,14 @@ export default function PaymentScreen() {
   };
 
   if (loading) {
-    return (
-      <LoadingView
-        message="Loading..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="We couldn't load membership details"
         message={error}
-        onRetry={fetchOrderSummary}
+        onRetry={() => onRetry(fetchOrderSummary, error, logout)}
       />
     );
   }

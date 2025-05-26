@@ -25,6 +25,19 @@ const FITNESS_KEYWORDS = [
   "lose",
   "gain",
   "routine",
+  "form",
+  "squat",
+  "bench",
+  "deadlift",
+  "pullup",
+  "pushup",
+  "curl",
+  "squatting",
+  "bench pressing",
+  "deadlifting",
+  "pullups",
+  "pushups",
+  "curls",
 ];
 
 function isFitnessRelated(text: string) {

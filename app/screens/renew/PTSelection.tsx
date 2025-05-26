@@ -7,9 +7,12 @@ import { memberService } from "@/services";
 import { ErrorView } from "@/components/common/ErrorView";
 import { LoadingView } from "@/components/common/LoadingView";
 import { useTheme } from "@/context/ThemeContext";
+import { onRetry } from "@/utils/onRetry";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SelectPersonalTrainer() {
   const router = useRouter();
+  const { logout } = useAuth();
   const { isDarkMode } = useTheme();
   const { rateId, ptRateId, totalAmount, withPT } = useLocalSearchParams();
 
@@ -57,20 +60,14 @@ export default function SelectPersonalTrainer() {
   };
 
   if (loading) {
-    return (
-      <LoadingView
-        message="Loading trainers..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="We couldn't load trainers"
         message={error}
-        onRetry={fetchPersonalTrainers}
+        onRetry={() => onRetry(fetchPersonalTrainers, error, logout)}
       />
     );
   }

@@ -8,12 +8,15 @@ import { memberService } from "@/services";
 import { ErrorView } from "@/components/common/ErrorView";
 import { LoadingView } from "@/components/common/LoadingView";
 import { useTheme } from "@/context/ThemeContext";
+import { onRetry } from "@/utils/onRetry";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SelectSchedule() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const { rateId, trainerId, totalAmount, withPT, ptRateId } =
     useLocalSearchParams();
+  const { logout } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -117,20 +120,14 @@ export default function SelectSchedule() {
   };
 
   if (loading) {
-    return (
-      <LoadingView
-        message="Loading available schedules..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="We couldn't load available schedules"
         message={error}
-        onRetry={fetchAvailableSchedules}
+        onRetry={() => onRetry(fetchAvailableSchedules, error, logout)}
       />
     );
   }

@@ -20,6 +20,7 @@ import ProfileInfo from "@/components/ProfileInfo";
 import { formatDate } from "@/utils/dateUtils";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
+import { onRetry } from "@/utils/onRetry";
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -41,7 +42,6 @@ export default function Profile() {
       setProfileData(data);
       setError(null);
     } catch (err: any) {
-      console.error("Error fetching profile:", err);
       setError(err.message || "Failed to load profile");
     } finally {
       setLoading(false);
@@ -99,20 +99,14 @@ export default function Profile() {
   };
 
   if (loading) {
-    return (
-      <LoadingView
-        message="Loading profile..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error) {
     return (
       <ErrorView
-        title="We couldn't load your profile"
         message={error}
-        onRetry={fetchProfile}
+        onRetry={() => onRetry(fetchProfile, error, logout)}
       />
     );
   }

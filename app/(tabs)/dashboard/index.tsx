@@ -5,6 +5,7 @@ import {
   ScrollView,
   RefreshControl,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -22,6 +23,7 @@ import { getMembershipStatusHexColor } from "@/utils/getMembershipStatusHexColor
 import { calculateMembershipProgress } from "@/utils/calculateMembershipProgress";
 import { getRemainingDays } from "@/utils/getRemainingDays";
 import { renderMembershipDates } from "@/components/renderMembershipDates";
+import { onRetry } from "@/utils/onRetry";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -73,20 +75,14 @@ export default function Dashboard() {
   }, [refresh]);
 
   if (loading && !refreshing) {
-    return (
-      <LoadingView
-        message="Loading membership details..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error && !refreshing) {
     return (
       <ErrorView
-        title="We couldn't load your membership details"
         message={error}
-        onRetry={logout}
+        onRetry={() => onRetry(fetchMembershipDetails, error, logout)}
       />
     );
   }

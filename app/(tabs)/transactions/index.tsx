@@ -9,9 +9,10 @@ import { formatDate } from "@/utils/dateUtils";
 import { router } from "expo-router";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
+import { onRetry } from "@/utils/onRetry";
 
 export default function Transactions() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,6 @@ export default function Transactions() {
         setError(response.message || "Failed to load transactions");
       }
     } catch (err: any) {
-      console.error("Error fetching transactions:", err);
       setError(err.message || "Failed to load transactions");
     } finally {
       setLoading(false);
@@ -54,20 +54,14 @@ export default function Transactions() {
   }, []);
 
   if (loading && !refreshing) {
-    return (
-      <LoadingView
-        message="Loading transactions..."
-        color={isDarkMode ? "#808080" : "#2563EB"}
-      />
-    );
+    return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
 
   if (error && !refreshing) {
     return (
       <ErrorView
-        title="We couldn't load your transactions"
         message={error}
-        onRetry={fetchTransactions}
+        onRetry={() => onRetry(fetchTransactions, error, logout)}
       />
     );
   }

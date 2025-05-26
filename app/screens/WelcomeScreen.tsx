@@ -1,19 +1,13 @@
 import { Text, View } from "react-native";
-import { Redirect, router } from "expo-router";
+import { router } from "expo-router";
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/common/Button";
 import { Logo } from "@/components/common/Logo";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function WelcomeScreen() {
-  const { user } = useAuth();
   const { isDarkMode } = useTheme();
-
-  if (user) {
-    return <Redirect href="/(tabs)/dashboard" />;
-  }
 
   return (
     <Container>

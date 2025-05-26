@@ -26,7 +26,7 @@ export default function LoginScreen() {
 
   const handleSignIn = async () => {
     if (!username || !password) {
-      Alert.alert("Error", "Username and password are required");
+      Alert.alert("Login Failed", "Username and password are required");
       return;
     }
 
@@ -43,7 +43,10 @@ export default function LoginScreen() {
         );
       }
     } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred. Please try again.");
+      Alert.alert(
+        "Login Failed",
+        "An unexpected error occurred. Please try again."
+      );
     } finally {
       setLoginLoading(false);
     }
