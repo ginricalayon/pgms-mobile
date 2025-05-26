@@ -9,18 +9,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { InputField } from "../../components/common/InputField";
-import { memberService } from "../../services";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { InputField } from "@/components/common/InputField";
+import { memberService } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ChangeUsernameScreen() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
   const { isDarkMode } = useTheme();
+
   const [currentUsername, setCurrentUsername] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [password, setPassword] = useState("");

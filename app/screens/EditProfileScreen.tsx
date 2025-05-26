@@ -10,16 +10,16 @@ import {
   Modal,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { InputField } from "../../components/common/InputField";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { InputField } from "@/components/common/InputField";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../services";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import { memberService } from "@/services";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { formatDate } from "../../utils/dateUtils";
-import { LoadingView } from "../../components/common/LoadingView";
+import { formatDate } from "@/utils/dateUtils";
+import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 
 export default function EditProfileScreen() {

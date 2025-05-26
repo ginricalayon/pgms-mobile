@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, ActivityIndicator } from "react-native";
-import { Container } from "./Container";
-import { useTheme } from "../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { useTheme } from "@/context/ThemeContext";
 
 interface LoadingViewProps {
   message?: string;

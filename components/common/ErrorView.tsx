@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Container } from "./Container";
-import { Button } from "./Button";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ErrorViewProps {
   title?: string;

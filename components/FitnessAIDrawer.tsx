@@ -9,9 +9,9 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { fitnessAIService } from "../../services/fitnessAIService";
+import { fitnessAIService } from "../services/fitnessAIService";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -229,7 +229,7 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
               />
             </View>
             <View className="flex-row justify-between items-center mb-3 px-2">
-              <View className="flex-row items-center">
+              <View className="flex-row items-center pl-2 gap-1">
                 <View className="bg-blue-500 w-10 h-10 rounded-full items-center justify-center mr-2">
                   <Ionicons name="chatbox-ellipses" size={24} color="white" />
                 </View>
@@ -245,7 +245,7 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
                 <TouchableOpacity onPress={clearAllMessages} className="mr-4">
                   <Ionicons
                     name="trash-outline"
-                    size={24}
+                    size={18}
                     color={isDarkMode ? "#fff" : "#000"}
                   />
                 </TouchableOpacity>
@@ -268,9 +268,35 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
               enableOnAndroid
               keyboardShouldPersistTaps="handled"
             >
-              {messages.map((message, idx) => {
-                const isLast = idx === messages.length - 1;
-                if (!message.isUser && isLast && typing) {
+              {messages.length > 0 ? (
+                messages.map((message, idx) => {
+                  const isLast = idx === messages.length - 1;
+                  if (!message.isUser && isLast && typing) {
+                    return (
+                      <View
+                        key={message.id}
+                        className={`mb-4 mx-3 flex-row ${
+                          message.isUser
+                            ? "flex-row-reverse justify-end"
+                            : "justify-start"
+                        }`}
+                      >
+                        <View
+                          className={`max-w-[80%] rounded-2xl p-3 ${
+                            isDarkMode ? "bg-zinc-800" : "bg-zinc-200"
+                          }`}
+                        >
+                          <Text
+                            className={
+                              isDarkMode ? "text-white" : "text-zinc-900"
+                            }
+                          >
+                            {displayedText}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  }
                   return (
                     <View
                       key={message.id}
@@ -282,53 +308,175 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
                     >
                       <View
                         className={`max-w-[80%] rounded-2xl p-3 ${
-                          isDarkMode ? "bg-zinc-800" : "bg-zinc-200"
+                          message.isUser
+                            ? "bg-blue-500"
+                            : isDarkMode
+                            ? "bg-zinc-800"
+                            : "bg-zinc-200"
                         }`}
                       >
                         <Text
-                          className={
-                            isDarkMode ? "text-white" : "text-zinc-900"
-                          }
+                          className={`${
+                            message.isUser
+                              ? "text-white"
+                              : isDarkMode
+                              ? "text-white"
+                              : "text-zinc-900"
+                          }`}
                         >
-                          {displayedText}
+                          {message.text}
                         </Text>
                       </View>
                     </View>
                   );
-                }
-                return (
-                  <View
-                    key={message.id}
-                    className={`mb-4 mx-3 flex-row ${
-                      message.isUser
-                        ? "flex-row-reverse justify-end"
-                        : "justify-start"
+                })
+              ) : (
+                <View className="flex-1 items-center justify-center px-6 py-8">
+                  {/* Animated Fitness Icon */}
+                  <View className="relative mb-6">
+                    <View className="bg-gradient-to-br from-blue-500 to-purple-600 w-20 h-20 rounded-full items-center justify-center shadow-lg">
+                      <Ionicons name="fitness" size={36} color="white" />
+                    </View>
+                    {/* Floating dots animation effect */}
+                    <View className="absolute -top-2 -right-2 w-4 h-4 bg-green-400 rounded-full opacity-80" />
+                    <View className="absolute -bottom-1 -left-2 w-3 h-3 bg-yellow-400 rounded-full opacity-60" />
+                    <View className="absolute top-1 -left-3 w-2 h-2 bg-pink-400 rounded-full opacity-70" />
+                  </View>
+
+                  {/* Welcome Message */}
+                  <Text
+                    className={`text-2xl font-bold text-center mb-2 ${
+                      isDarkMode ? "text-white" : "text-zinc-900"
                     }`}
                   >
-                    <View
-                      className={`max-w-[80%] rounded-2xl p-3 ${
-                        message.isUser
-                          ? "bg-blue-500"
-                          : isDarkMode
-                          ? "bg-zinc-800"
-                          : "bg-zinc-200"
+                    Hey there, fitness enthusiast! 💪
+                  </Text>
+
+                  <Text
+                    className={`text-center mb-8 leading-6 ${
+                      isDarkMode ? "text-zinc-300" : "text-zinc-600"
+                    }`}
+                  >
+                    I'm your AI fitness companion, ready to help you crush your
+                    goals! Ask me anything about workouts, nutrition, or
+                    wellness.
+                  </Text>
+
+                  {/* Suggestion Cards */}
+                  <View className="w-full space-y-3 gap-2">
+                    <Text
+                      className={`text-sm font-semibold mb-3 text-center ${
+                        isDarkMode ? "text-zinc-400" : "text-zinc-500"
                       }`}
                     >
-                      <Text
-                        className={`${
-                          message.isUser
-                            ? "text-white"
-                            : isDarkMode
-                            ? "text-white"
-                            : "text-zinc-900"
-                        }`}
-                      >
-                        {message.text}
-                      </Text>
-                    </View>
+                      Try asking me about:
+                    </Text>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setInputText("Create a beginner workout plan for me");
+                        handleSend("Create a beginner workout plan for me");
+                      }}
+                      className={`p-4 rounded-xl border-2 border-dashed ${
+                        isDarkMode
+                          ? "border-zinc-700 bg-zinc-800/50"
+                          : "border-zinc-300 bg-zinc-50"
+                      }`}
+                    >
+                      <View className="flex-row items-center">
+                        <View className="bg-blue-500 w-8 h-8 rounded-full items-center justify-center mr-3">
+                          <Ionicons name="barbell" size={16} color="white" />
+                        </View>
+                        <Text
+                          className={`flex-1 ${
+                            isDarkMode ? "text-zinc-200" : "text-zinc-700"
+                          }`}
+                        >
+                          Create a workout plan for me
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={16}
+                          color={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                        />
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setInputText("What should I eat for muscle building?");
+                        handleSend("What should I eat for muscle building?");
+                      }}
+                      className={`p-4 rounded-xl border-2 border-dashed ${
+                        isDarkMode
+                          ? "border-zinc-700 bg-zinc-800/50"
+                          : "border-zinc-300 bg-zinc-50"
+                      }`}
+                    >
+                      <View className="flex-row items-center">
+                        <View className="bg-green-500 w-8 h-8 rounded-full items-center justify-center mr-3">
+                          <Ionicons name="nutrition" size={16} color="white" />
+                        </View>
+                        <Text
+                          className={`flex-1 ${
+                            isDarkMode ? "text-zinc-200" : "text-zinc-700"
+                          }`}
+                        >
+                          Nutrition advice for my goals
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={16}
+                          color={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                        />
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setInputText("How can I improve my form for squats?");
+                        handleSend("How can I improve my form for squats?");
+                      }}
+                      className={`p-4 rounded-xl border-2 border-dashed ${
+                        isDarkMode
+                          ? "border-zinc-700 bg-zinc-800/50"
+                          : "border-zinc-300 bg-zinc-50"
+                      }`}
+                    >
+                      <View className="flex-row items-center">
+                        <View className="bg-purple-500 w-8 h-8 rounded-full items-center justify-center mr-3">
+                          <Ionicons name="body" size={16} color="white" />
+                        </View>
+                        <Text
+                          className={`flex-1 ${
+                            isDarkMode ? "text-zinc-200" : "text-zinc-700"
+                          }`}
+                        >
+                          Exercise form and technique tips
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={16}
+                          color={isDarkMode ? "#9CA3AF" : "#6B7280"}
+                        />
+                      </View>
+                    </TouchableOpacity>
                   </View>
-                );
-              })}
+
+                  {/* Fun motivational element */}
+                  <View className="mt-6 flex-row items-center">
+                    <Text
+                      className={`text-xs ${
+                        isDarkMode ? "text-zinc-500" : "text-zinc-400"
+                      }`}
+                    >
+                      Ready to transform your fitness journey?
+                    </Text>
+                    <Text className="text-xs ml-1">🚀</Text>
+                  </View>
+                </View>
+              )}
+
               {isLoading && (
                 <View className="flex-row items-center mb-3 mx-3">
                   <View
@@ -340,6 +488,7 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
                   </View>
                 </View>
               )}
+
               <View className="flex-row items-center gap-2 mb-4 mx-3">
                 <TextInput
                   ref={inputRef}
@@ -358,7 +507,7 @@ export const FitnessAIDrawer: React.FC<FitnessAIDrawerProps> = ({
                 />
                 <TouchableOpacity
                   onPress={() => handleSend()}
-                  className={`p-3 rounded-full ${
+                  className={`p-2 rounded-full ${
                     isLoading ? "bg-gray-400" : "bg-blue-500"
                   }`}
                   disabled={isLoading}

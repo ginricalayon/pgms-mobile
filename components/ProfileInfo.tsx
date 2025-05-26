@@ -30,12 +30,16 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
       }`}
     >
       <Text
-        className={`${isDark ? "text-gray-400" : "text-dark-100"} text-sm mb-1`}
+        className={`${
+          isDark ? "text-gray-400" : "text-text-secondary"
+        } text-sm mb-1`}
       >
         {label}
       </Text>
       <Text
-        className={`${isDark ? "text-white" : "text-dark-200"} font-semibold`}
+        className={`${
+          isDark ? "text-white" : "text-text-primary"
+        } font-semibold`}
       >
         {value || "N/A"}
       </Text>

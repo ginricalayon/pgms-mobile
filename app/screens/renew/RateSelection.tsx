@@ -2,17 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import Checkbox from "expo-checkbox";
 import { Stack, useRouter } from "expo-router";
-import { Container } from "../../../components/common/Container";
-import { Button } from "../../../components/common/Button";
-import { memberService } from "../../../services";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { ErrorView } from "../../../components/common/ErrorView";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { memberService } from "@/services";
+import { LoadingView } from "@/components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
 import Decimal from "decimal.js";
-import { useTheme } from "../../../context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function RenewalRateSelection() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [rates, setRates] = useState<Rate[]>([]);
   const [selectedRate, setSelectedRate] = useState<Rate | null>(null);

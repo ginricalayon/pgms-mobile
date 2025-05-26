@@ -11,6 +11,7 @@ interface ButtonProps {
   color?: string;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
+  borderColor?: string;
 }
 
 export const Button = forwardRef<
@@ -28,6 +29,7 @@ export const Button = forwardRef<
       color = "text-accent",
       disabled = false,
       size = "md",
+      borderColor = "border-accent",
     },
     ref
   ) => {
@@ -75,7 +77,7 @@ export const Button = forwardRef<
           ref={ref}
           onPress={onPress}
           activeOpacity={0.8}
-          className={`border-2 border-accent ${sizeClasses[size]} rounded-lg ${
+          className={`border-2 ${borderColor} ${sizeClasses[size]} rounded-lg ${
             fullWidth ? "w-full" : ""
           } ${disabled ? "opacity-50" : ""}`}
           disabled={disabled}
@@ -84,7 +86,9 @@ export const Button = forwardRef<
             {icon && iconPosition === "left" && (
               <View className="mr-2">{icon}</View>
             )}
-            <Text className="text-accent text-center font-semibold ${textSizeClasses[size]}">
+            <Text
+              className={`${color} text-center font-semibold ${textSizeClasses[size]}`}
+            >
               {title}
             </Text>
             {icon && iconPosition === "right" && (

@@ -1,21 +1,22 @@
 import { View, Text, Alert, ActivityIndicator, Image } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
-import { Container } from "../../components/common/Container";
-import { InputField } from "../../components/common/InputField";
-import { Button } from "../../components/common/Button";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
-import { Logo } from "../../components/common/Logo";
+import { Container } from "@/components/common/Container";
+import { InputField } from "@/components/common/InputField";
+import { Button } from "@/components/common/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { Logo } from "@/components/common/Logo";
 
 export default function LoginScreen() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
+  const { login } = useAuth();
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
-  const { login } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -66,14 +67,14 @@ export default function LoginScreen() {
           <Logo size="large" />
           <Text
             className={`${
-              isDarkMode ? "text-white" : "text-dark-200"
+              isDarkMode ? "text-white" : "text-text-primary"
             } text-2xl font-bold text-center mt-6 px-4`}
           >
             Welcome Back!
           </Text>
           <Text
             className={`${
-              isDarkMode ? "text-gray-300" : "text-dark-100"
+              isDarkMode ? "text-gray-300" : "text-text-secondary"
             } text-base text-center mt-2 px-4`}
           >
             Sign in to continue to your account
@@ -114,7 +115,7 @@ export default function LoginScreen() {
         <View className="items-center mb-8">
           <Text
             className={`${
-              isDarkMode ? "text-gray-400" : "text-dark-100"
+              isDarkMode ? "text-gray-400" : "text-text-secondary"
             } text-sm`}
           >
             © 2024 PGMS. All rights reserved.

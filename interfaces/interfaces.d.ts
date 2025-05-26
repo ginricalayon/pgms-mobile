@@ -107,3 +107,25 @@ interface CheckIn {
   timeIn: string;
   timeOut?: string;
 }
+
+interface Schedule {
+  ID: number;
+  Day: string;
+  StartTime: string;
+  EndTime: string;
+}
+
+interface TrainerInfo {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
+interface Transaction {
+  transactionId: string;
+  rateName: string;
+  rateAmount: number;
+  paymentType: string;
+  totalCost: number;
+  date: string;
+}

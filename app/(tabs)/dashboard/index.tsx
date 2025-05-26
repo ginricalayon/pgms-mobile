@@ -8,30 +8,34 @@ import {
 } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Container } from "../../../components/common/Container";
-import { useAuth } from "../../../context/AuthContext";
-import { useTheme } from "../../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../../services";
-import { formatDate } from "../../../utils/dateUtils";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { ErrorView } from "../../../components/common/ErrorView";
-import { Button } from "../../../components/common/Button";
-import { FitnessAIDrawer } from "../../../components/common/FitnessAIDrawer";
-import { FloatingAIButton } from "../../../components/common/FloatingAIButton";
+import { memberService } from "@/services";
+import { LoadingView } from "@/components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
+import { Button } from "@/components/common/Button";
+import { FitnessAIDrawer } from "@/components/FitnessAIDrawer";
+import { FloatingAIButton } from "@/components/FloatingAIButton";
+import { getMembershipStatusHexColor } from "@/utils/getMembershipStatusHexColor";
+import { calculateMembershipProgress } from "@/utils/calculateMembershipProgress";
+import { getRemainingDays } from "@/utils/getRemainingDays";
+import { renderMembershipDates } from "@/components/renderMembershipDates";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const router = useRouter();
+  const { refresh } = useLocalSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAIDrawerVisible, setIsAIDrawerVisible] = useState(false);
   const [membershipDetailsData, setmembershipDetailsData] = useState<{
     user: membershipDetails;
   } | null>(null);
-  const { refresh } = useLocalSearchParams();
-  const [isAIDrawerVisible, setIsAIDrawerVisible] = useState(false);
 
   const fetchMembershipDetails = async () => {
     try {
@@ -47,6 +51,12 @@ export default function Dashboard() {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setError(null);
+    fetchMembershipDetails();
+  }, []);
+
   useEffect(() => {
     if (!user) {
       router.replace("/screens/LoginScreen");
@@ -61,207 +71,6 @@ export default function Dashboard() {
       fetchMembershipDetails();
     }
   }, [refresh]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setError(null);
-    fetchMembershipDetails();
-  }, []);
-
-  const navigateToProfile = () => {
-    router.navigate("profile" as any);
-  };
-
-  const getMembershipStatusHexColor = () => {
-    const status = membershipDetailsData?.user?.status || "Active";
-    switch (status) {
-      case "Active":
-        return "#22C55E"; // green-500 hex value
-      case "Nearly Expired":
-        return "#F97316"; // orange-500 hex value
-      case "Expired":
-        return "#EF4444"; // red-500 hex value
-      case "Freezed":
-        return "#3B82F6"; // blue-500 hex value
-      case "Cancelled":
-        return "#B91C1C"; // red-700 hex value
-      default:
-        return "#22C55E"; // green-500 hex value
-    }
-  };
-
-  const calculateMembershipProgress = () => {
-    const startDate = membershipDetailsData?.user?.start;
-    const endDate = membershipDetailsData?.user?.end;
-
-    if (!startDate || !endDate) return 0;
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const today = new Date();
-
-    const totalDays = Math.ceil(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    const remainingDays = Math.ceil(
-      (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (remainingDays < 0) return 0;
-    if (remainingDays > totalDays) return 100;
-
-    return Math.round((remainingDays / totalDays) * 100);
-  };
-
-  const getRemainingDays = () => {
-    const endDate = membershipDetailsData?.user?.end;
-    if (!endDate) return "N/A";
-
-    const end = new Date(endDate);
-    const today = new Date();
-    const remainingDays = Math.ceil(
-      (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (remainingDays < 0) return "Expired";
-    return `${remainingDays} days remaining`;
-  };
-
-  const renderMembershipDates = () => {
-    const status = membershipDetailsData?.user?.status || "Active";
-    const startDate = membershipDetailsData?.user?.start;
-    const endDate = membershipDetailsData?.user?.end;
-    const freezeStartDate = membershipDetailsData?.user?.freezeStartDate;
-    const freezeEndDate = membershipDetailsData?.user?.freezeEndDate;
-    const cancelledDate = membershipDetailsData?.user?.cancelled_date;
-
-    switch (status) {
-      case "Active":
-      case "Expired":
-        return (
-          <>
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg p-4 mb-4`}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } font-bold`}
-              >
-                Start Date
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {formatDate(startDate ? startDate.toString() : undefined)}
-              </Text>
-            </View>
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg p-4 mb-4`}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } font-bold`}
-              >
-                End Date
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {formatDate(endDate ? endDate.toString() : undefined)}
-              </Text>
-            </View>
-          </>
-        );
-      case "Freezed":
-        return (
-          <>
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg p-4 mb-4`}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } font-bold`}
-              >
-                Freeze Start Date
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {formatDate(
-                  freezeStartDate ? freezeStartDate.toString() : undefined
-                )}
-              </Text>
-            </View>
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg p-4 mb-4`}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } font-bold`}
-              >
-                Freeze End Date
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {formatDate(
-                  freezeEndDate ? freezeEndDate.toString() : undefined
-                )}
-              </Text>
-            </View>
-          </>
-        );
-      case "Cancelled":
-        return (
-          <>
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg p-4 mb-4`}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } font-bold`}
-              >
-                Cancelled Date
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {formatDate(
-                  cancelledDate ? cancelledDate.toString() : undefined
-                )}
-              </Text>
-            </View>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
 
   if (loading && !refreshing) {
     return (
@@ -315,7 +124,10 @@ export default function Dashboard() {
                 color={isDarkMode ? "#FCD34D" : "#2563EB"}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToProfile} className="p-2">
+            <TouchableOpacity
+              onPress={() => router.navigate("/profile" as any)}
+              className="p-2"
+            >
               <Ionicons
                 name="person-circle-outline"
                 size={30}
@@ -372,13 +184,17 @@ export default function Dashboard() {
                     width: 8,
                     height: 8,
                     borderRadius: 4,
-                    backgroundColor: getMembershipStatusHexColor(),
+                    backgroundColor: getMembershipStatusHexColor(
+                      membershipDetailsData?.user?.status || "Active"
+                    ),
                     marginRight: 6,
                   }}
                 />
                 <Text
                   style={{
-                    color: getMembershipStatusHexColor(),
+                    color: getMembershipStatusHexColor(
+                      membershipDetailsData?.user?.status || "Active"
+                    ),
                     fontWeight: "600",
                   }}
                 >
@@ -393,14 +209,20 @@ export default function Dashboard() {
                         isDarkMode ? "text-gray-300" : "text-text-secondary"
                       } text-sm`}
                     >
-                      {getRemainingDays()}
+                      {getRemainingDays(
+                        membershipDetailsData?.user?.end || new Date()
+                      )}
                     </Text>
                     <Text
                       className={`${
                         isDarkMode ? "text-gray-300" : "text-text-secondary"
                       } text-sm`}
                     >
-                      {calculateMembershipProgress()}%
+                      {calculateMembershipProgress(
+                        membershipDetailsData?.user?.start || new Date(),
+                        membershipDetailsData?.user?.end || new Date()
+                      )}
+                      %
                     </Text>
                   </View>
                   <View
@@ -410,8 +232,13 @@ export default function Dashboard() {
                   >
                     <View
                       style={{
-                        width: `${calculateMembershipProgress()}%`,
-                        backgroundColor: getMembershipStatusHexColor(),
+                        width: `${calculateMembershipProgress(
+                          membershipDetailsData?.user?.start || new Date(),
+                          membershipDetailsData?.user?.end || new Date()
+                        )}%`,
+                        backgroundColor: getMembershipStatusHexColor(
+                          membershipDetailsData?.user?.status || "Active"
+                        ),
                         height: "100%",
                         borderRadius: 9999,
                       }}
@@ -481,7 +308,15 @@ export default function Dashboard() {
           </View>
 
           <View className="space-y-3">
-            {renderMembershipDates()}
+            {renderMembershipDates(
+              membershipDetailsData?.user?.status || "Active",
+              membershipDetailsData?.user?.start || new Date(),
+              membershipDetailsData?.user?.end || new Date(),
+              membershipDetailsData?.user?.freezeStartDate || new Date(),
+              membershipDetailsData?.user?.freezeEndDate || new Date(),
+              membershipDetailsData?.user?.cancelled_date || new Date(),
+              isDarkMode
+            )}
 
             <View
               className={`${

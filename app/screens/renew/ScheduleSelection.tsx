@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
-import { Container } from "../../../components/common/Container";
-import { Button } from "../../../components/common/Button";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../../services";
-import { ErrorView } from "../../../components/common/ErrorView";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { useTheme } from "../../../context/ThemeContext";
+import { memberService } from "@/services";
+import { ErrorView } from "@/components/common/ErrorView";
+import { LoadingView } from "@/components/common/LoadingView";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function SelectSchedule() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const { rateId, trainerId, totalAmount, withPT, ptRateId } =
     useLocalSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<{

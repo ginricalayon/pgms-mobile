@@ -10,21 +10,22 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
-import { Container } from "../../../components/common/Container";
-import { Button } from "../../../components/common/Button";
-import { useAuth } from "../../../context/AuthContext";
-import { useTheme } from "../../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../../services";
-import ProfileInfo from "../../../components/ProfileInfo";
-import { formatDate } from "../../../utils/dateUtils";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { ErrorView } from "../../../components/common/ErrorView";
+import { memberService } from "@/services";
+import ProfileInfo from "@/components/ProfileInfo";
+import { formatDate } from "@/utils/dateUtils";
+import { LoadingView } from "@/components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
   const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profileData, setProfileData] = useState<{ user: ProfileData } | null>(
@@ -62,19 +63,6 @@ export default function Profile() {
     }, [user])
   );
 
-  const handleLogoutButton = () => {
-    Alert.alert("Logout", "Are you sure you want to log out of your account?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        onPress: () => handleLogout(),
-      },
-    ]);
-  };
-
   const handleLogout = async () => {
     try {
       setLoggingOut(true);
@@ -85,6 +73,20 @@ export default function Profile() {
     } finally {
       setLoggingOut(false);
     }
+  };
+
+  const handleLogoutButton = () => {
+    Alert.alert("Logout", "Are you sure you want to log out of your account?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: () => handleLogout(),
+      },
+    ]);
   };
 
   const handleEditProfile = () => {
@@ -282,20 +284,28 @@ export default function Profile() {
               onPress={() =>
                 router.push({ pathname: "/screens/ChangeUsernameScreen" })
               }
-              variant="text"
+              variant="outline"
+              fullWidth
+              color={isDarkMode ? "text-white" : "text-text-primary"}
+              borderColor={isDarkMode ? "border-gray-700" : "border-light-200"}
             />
             <Button
               title="Change Password"
               onPress={() =>
                 router.push({ pathname: "/screens/ChangePasswordScreen" })
               }
-              variant="text"
+              variant="outline"
+              fullWidth
+              color={isDarkMode ? "text-white" : "text-text-primary"}
+              borderColor={isDarkMode ? "border-gray-700" : "border-light-200"}
             />
             <Button
               title="Logout"
               onPress={handleLogoutButton}
-              variant="text"
+              variant="outline"
+              fullWidth
               color="text-error"
+              borderColor={isDarkMode ? "border-gray-700" : "border-light-200"}
             />
           </View>
         </View>

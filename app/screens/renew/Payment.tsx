@@ -1,25 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, ScrollView, Alert, Linking, AppState } from "react-native";
 import { Stack, useLocalSearchParams, router } from "expo-router";
-import { Container } from "../../../components/common/Container";
-import { Button } from "../../../components/common/Button";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { paymentService } from "../../../services";
-import {
-  createPayPalOrder,
-  capturePayPalPayment,
-} from "../../../services/paypal";
-import { ErrorView } from "../../../components/common/ErrorView";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { formatCurrency } from "../../../utils/formatCurrency";
-import { calculateEndDate } from "../../../utils/calculateEndDate";
-import { useTheme } from "../../../context/ThemeContext";
+import { paymentService } from "@/services";
+import { createPayPalOrder } from "@/services/paypal";
+import { ErrorView } from "@/components/common/ErrorView";
+import { LoadingView } from "@/components/common/LoadingView";
+import { formatCurrency } from "@/utils/formatCurrency";
+import { calculateEndDate } from "@/utils/calculateEndDate";
+import { useTheme } from "@/context/ThemeContext";
 // import * as Linking from "expo-linking";
 
 export default function PaymentScreen() {
   const { rateId, trainerId, scheduleIds, withPT, ptRateId, totalAmount } =
     useLocalSearchParams();
   const { isDarkMode } = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
   const [rateDetails, setRateDetails] = useState<RateDetails | null>(null);
@@ -30,6 +28,7 @@ export default function PaymentScreen() {
   const [scheduleDetails, setScheduleDetails] = useState<ScheduleDetails[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
+
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {

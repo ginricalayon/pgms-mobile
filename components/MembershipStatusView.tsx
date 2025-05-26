@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, RefreshControl } from "react-native";
-import { Container } from "../common/Container";
+import { Container } from "../components/common/Container";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { Button } from "./Button";
+import { Button } from "../components/common/Button";
 import { router } from "expo-router";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 
 interface ActionItem {
   icon: keyof typeof Ionicons.glyphMap;

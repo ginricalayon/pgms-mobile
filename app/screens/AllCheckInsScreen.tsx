@@ -6,18 +6,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import { Container } from "../../components/common/Container";
-import { useAuth } from "../../context/AuthContext";
+import { Container } from "@/components/common/Container";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../services";
+import { memberService } from "@/services";
 import { router } from "expo-router";
-import { LoadingView } from "../../components/common/LoadingView";
-import { ErrorView } from "../../components/common/ErrorView";
-import { useTheme } from "../../context/ThemeContext";
+import { LoadingView } from "@/components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function AllCheckInsScreen() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
+
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
@@ -63,10 +64,6 @@ export default function AllCheckInsScreen() {
     fetchCheckIns();
   }, []);
 
-  const goBack = () => {
-    router.back();
-  };
-
   if (loading && !refreshing) {
     return (
       <LoadingView
@@ -102,7 +99,7 @@ export default function AllCheckInsScreen() {
         }
       >
         <View className="flex-row justify-between items-center mb-6 mt-4">
-          <TouchableOpacity onPress={goBack} className="p-2">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Ionicons
               name="arrow-back"
               size={24}

@@ -1,11 +1,11 @@
 import { Text, View } from "react-native";
 import { Redirect, router } from "expo-router";
-import { Container } from "../../components/common/Container";
-import { Button } from "../../components/common/Button";
-import { Logo } from "../../components/common/Logo";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { Logo } from "@/components/common/Logo";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function WelcomeScreen() {
   const { user } = useAuth();
@@ -29,14 +29,14 @@ export default function WelcomeScreen() {
           <View className="space-y-4 items-center">
             <Text
               className={`${
-                isDarkMode ? "text-white" : "text-dark-200"
+                isDarkMode ? "text-white" : "text-text-primary"
               } font-bold text-4xl text-center leading-tight`}
             >
               Welcome to Praktisado {"\n"} Gym Mobile App
             </Text>
             <Text
               className={`${
-                isDarkMode ? "text-gray-300" : "text-dark-100"
+                isDarkMode ? "text-gray-300" : "text-text-secondary"
               } text-lg text-center`}
             >
               Your Fitness Journey Starts Here
@@ -51,7 +51,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 Track your membership status and remaining days
@@ -64,7 +64,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 View your membership details
@@ -77,7 +77,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 See your schedule to your Personal Trainer
@@ -90,7 +90,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 Monitor your recent check-ins
@@ -103,7 +103,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 View your payment history
@@ -116,7 +116,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 Update your profile, username, and password
@@ -129,7 +129,7 @@ export default function WelcomeScreen() {
               </View>
               <Text
                 className={`${
-                  isDarkMode ? "text-white" : "text-dark-200"
+                  isDarkMode ? "text-white" : "text-text-primary"
                 } text-base flex-1`}
               >
                 Renew your membership

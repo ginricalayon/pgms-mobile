@@ -1,27 +1,19 @@
 import { View, Text, ScrollView, RefreshControl } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import { Container } from "../../../components/common/Container";
-import { useAuth } from "../../../context/AuthContext";
-import { useTheme } from "../../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "../../../services";
-import { formatDate } from "../../../utils/dateUtils";
+import { memberService } from "@/services";
+import { formatDate } from "@/utils/dateUtils";
 import { router } from "expo-router";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { ErrorView } from "../../../components/common/ErrorView";
-
-interface Transaction {
-  transactionId: string;
-  rateName: string;
-  rateAmount: number;
-  paymentType: string;
-  totalCost: number;
-  date: string;
-}
+import { LoadingView } from "@/components/common/LoadingView";
+import { ErrorView } from "@/components/common/ErrorView";
 
 export default function Transactions() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);

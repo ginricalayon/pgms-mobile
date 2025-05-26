@@ -6,7 +6,7 @@ import {
   Platform,
   ViewStyle,
 } from "react-native";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 
 interface ContainerProps {
   children: React.ReactNode;

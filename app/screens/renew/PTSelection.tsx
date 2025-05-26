@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Stack, useRouter, useLocalSearchParams } from "expo-router";
-import { Container } from "../../../components/common/Container";
-import { Button } from "../../../components/common/Button";
-import { memberService } from "../../../services";
-import { ErrorView } from "../../../components/common/ErrorView";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { useTheme } from "../../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { Button } from "@/components/common/Button";
+import { memberService } from "@/services";
+import { ErrorView } from "@/components/common/ErrorView";
+import { LoadingView } from "@/components/common/LoadingView";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function SelectPersonalTrainer() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const { rateId, ptRateId, totalAmount, withPT } = useLocalSearchParams();
+
   const [loading, setLoading] = useState(true);
   const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);

@@ -1,31 +1,19 @@
 import { View, Text, RefreshControl, ScrollView, Platform } from "react-native";
-import { Container } from "../../../components/common/Container";
-import { useAuth } from "../../../context/AuthContext";
-import { useTheme } from "../../../context/ThemeContext";
+import { Container } from "@/components/common/Container";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { router } from "expo-router";
 import { useState, useEffect, useCallback } from "react";
-import { memberService } from "../../../services";
+import { memberService } from "@/services";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { ErrorView } from "../../../components/common/ErrorView";
-import { LoadingView } from "../../../components/common/LoadingView";
-import { MembershipStatusView } from "../../../components/common/MembershipStatusView";
-
-interface Schedule {
-  ID: number;
-  Day: string;
-  StartTime: string;
-  EndTime: string;
-}
-
-interface TrainerInfo {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-}
+import { ErrorView } from "@/components/common/ErrorView";
+import { LoadingView } from "@/components/common/LoadingView";
+import { MembershipStatusHandler } from "@/components/MembershipStatusHandler";
 
 export default function Schedules() {
   const { user } = useAuth();
   const { isDarkMode } = useTheme();
+
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -121,49 +109,19 @@ export default function Schedules() {
     );
   }
 
-  if (membershipStatus === "Freezed" && trainerInfo?.firstName) {
-    return (
-      <MembershipStatusView
-        icon="snowflake"
-        iconColor="#64B5F6"
-        title="Membership Frozen"
-        message="Your account is currently frozen. Please unfreeze your membership at the gym to resched your schedule to your Personal Trainer"
-        onRefresh={onRefresh}
-        refreshing={refreshing}
-        darkMode={isDarkMode}
-      />
-    );
-  } else if (membershipStatus === "Cancelled") {
-    return (
-      <MembershipStatusView
-        icon="times-circle"
-        iconColor="#DC2626"
-        title="Membership Cancelled"
-        message="Your membership has been cancelled. Please renew your membership to continue."
-        onRefresh={onRefresh}
-        refreshing={refreshing}
-        darkMode={isDarkMode}
-      />
-    );
-  } else if (membershipStatus === "Expired" && !trainerInfo?.firstName) {
-    return (
-      <MembershipStatusView
-        icon="clock"
-        iconColor="red"
-        title="Membership Expired"
-        message="Your membership has expired. Please renew your membership and avail a personal trainer."
-        onRefresh={onRefresh}
-        refreshing={refreshing}
-        darkMode={isDarkMode}
-      />
-    );
-  }
-
-  if (!trainerInfo?.firstName) {
-    return (
+  return (
+    <MembershipStatusHandler
+      membershipStatus={membershipStatus || "Active"}
+      trainerInfo={trainerInfo || undefined}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
+      darkMode={isDarkMode}
+    >
       <Container>
         <ScrollView
-          className="flex-1 px-4 py-6"
+          className={`flex-1 px-4 py-6 ${
+            Platform.OS === "android" ? "mb-24" : "mb-0"
+          }`}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -203,188 +161,128 @@ export default function Schedules() {
                   isDarkMode ? "text-white" : "text-text-primary"
                 } text-lg font-bold ml-2`}
               >
-                No Personal Trainer
+                Your Personal Trainer
               </Text>
+            </View>
+            <View className="flex-row items-center justify-between mb-2">
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } text-xl font-bold`}
+              >
+                {trainerInfo?.firstName || "Unknown"}{" "}
+                {trainerInfo?.lastName || ""}
+              </Text>
+              <View className="flex-row items-center">
+                <Ionicons
+                  name="call-outline"
+                  size={18}
+                  color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                  style={{ marginRight: 4 }}
+                />
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  }`}
+                >
+                  {trainerInfo?.phoneNumber || "N/A"}
+                </Text>
+              </View>
             </View>
             <Text
               className={`${
                 isDarkMode ? "text-gray-300" : "text-text-secondary"
               } mb-4`}
             >
-              Your membership doesn't include a personal trainer.
+              View your upcoming sessions with your personal trainer
             </Text>
           </View>
-        </ScrollView>
-      </Container>
-    );
-  }
 
-  return (
-    <Container>
-      <ScrollView
-        className={`flex-1 px-4 py-6 ${
-          Platform.OS === "android" ? "mb-24" : "mb-0"
-        }`}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={["#2563EB"]}
-            tintColor={isDarkMode ? "#60A5FA" : "#2563EB"}
-            title="Pull to refresh"
-            titleColor={isDarkMode ? "#60A5FA" : "#2563EB"}
-          />
-        }
-      >
-        <View className="flex-row justify-between items-center mb-6 mt-4">
-          <Text
+          <View
             className={`${
-              isDarkMode ? "text-white" : "text-text-primary"
-            } text-2xl font-bold`}
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            } rounded-xl p-6 shadow-sm mb-6 border ${
+              isDarkMode ? "border-gray-700" : "border-light-200"
+            }`}
           >
-            Schedules
-          </Text>
-        </View>
-
-        <View
-          className={`${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          } rounded-xl p-6 shadow-sm mb-6 border ${
-            isDarkMode ? "border-gray-700" : "border-light-200"
-          }`}
-        >
-          <View className="flex-row items-center mb-4">
-            <Ionicons
-              name="person-outline"
-              size={22}
-              color={isDarkMode ? "#60A5FA" : "#2563EB"}
-            />
-            <Text
-              className={`${
-                isDarkMode ? "text-white" : "text-text-primary"
-              } text-lg font-bold ml-2`}
-            >
-              Your Personal Trainer
-            </Text>
-          </View>
-          <View className="flex-row items-center justify-between mb-2">
-            <Text
-              className={`${
-                isDarkMode ? "text-white" : "text-text-primary"
-              } text-xl font-bold`}
-            >
-              {trainerInfo?.firstName || "Unknown"}{" "}
-              {trainerInfo?.lastName || ""}
-            </Text>
-            <View className="flex-row items-center">
-              <Ionicons
-                name="call-outline"
-                size={18}
-                color={isDarkMode ? "#60A5FA" : "#2563EB"}
-                style={{ marginRight: 4 }}
-              />
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                }`}
-              >
-                {trainerInfo?.phoneNumber || "N/A"}
-              </Text>
-            </View>
-          </View>
-          <Text
-            className={`${
-              isDarkMode ? "text-gray-300" : "text-text-secondary"
-            } mb-4`}
-          >
-            View your upcoming sessions with your personal trainer
-          </Text>
-        </View>
-
-        <View
-          className={`${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          } rounded-xl p-6 shadow-sm mb-6 border ${
-            isDarkMode ? "border-gray-700" : "border-light-200"
-          }`}
-        >
-          <View className="flex-row items-center mb-4">
-            <Text
-              className={`${
-                isDarkMode ? "text-white" : "text-text-primary"
-              } text-lg font-bold ml-2`}
-            >
-              Training Schedule
-            </Text>
-          </View>
-
-          {schedules.length > 0 ? (
-            schedules.map((schedule, index) => (
-              <View
-                key={index}
-                className={`${
-                  isDarkMode ? "bg-gray-700" : "bg-light-100"
-                } rounded-lg p-4 mb-4 flex-row justify-between items-center`}
-              >
-                <View className="flex-row items-center">
-                  <Ionicons
-                    name="calendar-outline"
-                    size={20}
-                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
-                  />
-                  <Text
-                    className={`${
-                      isDarkMode ? "text-white" : "text-text-primary"
-                    } ml-2`}
-                  >
-                    {schedule.Day}
-                  </Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Ionicons
-                    name="time-outline"
-                    size={20}
-                    color={isDarkMode ? "#60A5FA" : "#2563EB"}
-                  />
-                  <Text
-                    className={`${
-                      isDarkMode ? "text-white" : "text-text-primary"
-                    } ml-2`}
-                  >
-                    {schedule.StartTime} - {schedule.EndTime}
-                  </Text>
-                </View>
-              </View>
-            ))
-          ) : (
-            <View
-              className={`${
-                isDarkMode ? "bg-gray-700" : "bg-light-100"
-              } rounded-lg p-4 mb-4 items-center`}
-            >
-              <MaterialIcons
-                name="event-busy"
-                size={40}
-                color={isDarkMode ? "#60A5FA" : "#2563EB"}
-              />
+            <View className="flex-row items-center mb-4">
               <Text
                 className={`${
                   isDarkMode ? "text-white" : "text-text-primary"
-                } text-lg font-medium mt-2 mb-1`}
+                } text-lg font-bold ml-2`}
               >
-                No sessions scheduled
-              </Text>
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                } text-center`}
-              >
-                You don't have any upcoming sessions with your trainer
+                Training Schedule
               </Text>
             </View>
-          )}
-        </View>
-      </ScrollView>
-    </Container>
+
+            {schedules.length > 0 ? (
+              schedules.map((schedule, index) => (
+                <View
+                  key={index}
+                  className={`${
+                    isDarkMode ? "bg-gray-700" : "bg-light-100"
+                  } rounded-lg p-4 mb-4 flex-row justify-between items-center`}
+                >
+                  <View className="flex-row items-center">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={20}
+                      color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                    />
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-white" : "text-text-primary"
+                      } ml-2`}
+                    >
+                      {schedule.Day}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <Ionicons
+                      name="time-outline"
+                      size={20}
+                      color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                    />
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-white" : "text-text-primary"
+                      } ml-2`}
+                    >
+                      {schedule.StartTime} - {schedule.EndTime}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <View
+                className={`${
+                  isDarkMode ? "bg-gray-700" : "bg-light-100"
+                } rounded-lg p-4 mb-4 items-center`}
+              >
+                <MaterialIcons
+                  name="event-busy"
+                  size={40}
+                  color={isDarkMode ? "#60A5FA" : "#2563EB"}
+                />
+                <Text
+                  className={`${
+                    isDarkMode ? "text-white" : "text-text-primary"
+                  } text-lg font-medium mt-2 mb-1`}
+                >
+                  No sessions scheduled
+                </Text>
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  } text-center`}
+                >
+                  You don't have any upcoming sessions with your trainer
+                </Text>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </Container>
+    </MembershipStatusHandler>
   );
 }
