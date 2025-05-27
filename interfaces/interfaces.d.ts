@@ -11,6 +11,16 @@ interface ProfileData {
   picture: string;
 }
 
+interface TrainerProfile {
+  ptId: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  address: string;
+  phoneNumber: string;
+  birthdate: string;
+}
+
 interface membershipDetails {
   membershipId: string;
   customerFirstName: string;
@@ -128,4 +138,37 @@ interface Transaction {
   paymentType: string;
   totalCost: number;
   date: string;
+}
+
+interface TrainerStats {
+  totalClients: number;
+  sessionsToday: number;
+  upcomingSessions: number;
+  availableSessions: number;
+}
+
+interface Client {
+  membershipId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  start: string;
+  end: string;
+  status: string;
+  gender: string;
+}
+
+interface Schedule {
+  scheduleDate: string;
+  startTime: string;
+  endTime: string;
+}
+
+interface ClientDetails extends Client {
+  birthdate: string;
+  address: string;
+  rateName: string;
+  rateCost: number;
+  schedules: Schedule[];
+  picture?: string;
 }

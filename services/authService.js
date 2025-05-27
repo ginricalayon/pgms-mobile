@@ -12,6 +12,7 @@ export const authService = {
           "pgms_user",
           JSON.stringify(response.data.user)
         );
+        await AsyncStorage.setItem("pgms_user_role", response.data.user.role);
       }
       return response.data;
     } catch (error) {
@@ -22,11 +23,17 @@ export const authService = {
   logout: async () => {
     await AsyncStorage.removeItem("pgms_token");
     await AsyncStorage.removeItem("pgms_user");
+    await AsyncStorage.removeItem("pgms_user_role");
   },
 
   getCurrentUser: async () => {
     const user = await AsyncStorage.getItem("pgms_user");
     return user ? JSON.parse(user) : null;
+  },
+
+  getUserRole: async () => {
+    const role = await AsyncStorage.getItem("pgms_user_role");
+    return role || null;
   },
 
   isAuthenticated: async () => {

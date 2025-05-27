@@ -7,9 +7,12 @@ import { Button } from "@/components/common/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Logo } from "@/components/common/Logo";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 export default function LoginScreen() {
-  const { user } = useAuth();
+  const { checkAuth } = useAuthGuard();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { user, userRole } = useAuth();
   const { isDarkMode } = useTheme();
   const { login } = useAuth();
   const router = useRouter();
@@ -18,11 +21,31 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      router.replace("/(tabs)/dashboard" as any);
+  const checkAuthentication = async () => {
+    try {
+      setLoginLoading(true);
+      const authResult = await checkAuth();
+      setIsAuthenticated(authResult.isAuthenticated);
+    } catch (error) {
+      setIsAuthenticated(false);
+    } finally {
+      setLoginLoading(false);
     }
-  }, [user, router]);
+  };
+
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      if (userRole === "trainer") {
+        router.replace("/(trainer-tabs)/dashboard" as any);
+      } else {
+        router.replace("/(tabs)/dashboard" as any);
+      }
+    }
+  }, [isAuthenticated, userRole]);
 
   const handleSignIn = async () => {
     if (!username || !password) {
@@ -34,13 +57,19 @@ export default function LoginScreen() {
       setLoginLoading(true);
       const result = await login(username, password);
 
-      if (result.success) {
-        router.replace("/(tabs)/dashboard" as any);
-      } else {
+      if (!result.success) {
         Alert.alert(
           "Login Failed",
           result.error || "Invalid username or password"
         );
+        setLoginLoading(false);
+        return;
+      }
+
+      if (result.role === "trainer") {
+        router.replace("/(trainer-tabs)/dashboard" as any);
+      } else {
+        router.replace("/(tabs)/dashboard" as any);
       }
     } catch (error) {
       Alert.alert(

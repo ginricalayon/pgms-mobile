@@ -27,16 +27,40 @@ exports.login = async (req, res) => {
 
     const user = rows[0];
 
-    const [customerRows] = await db.execute(
-      "SELECT firstName, lastName FROM customer WHERE customerId = ?",
-      [user.customerId]
-    );
-
     if (password !== user.password) {
       return res.status(401).json({
         success: false,
         message: "Invalid username or password",
       });
+    }
+
+    const userRole = user.role;
+    let firstName = null,
+      lastName = null;
+
+    try {
+      if (userRole === "trainer") {
+        const [trainerRows] = await db.execute(
+          "SELECT firstName, lastName FROM pt_info WHERE ptId = ?",
+          [user.customerId]
+        );
+
+        if (trainerRows.length > 0) {
+          firstName = trainerRows[0].firstName;
+          lastName = trainerRows[0].lastName;
+        }
+      } else {
+        const [customerRows] = await db.execute(
+          "SELECT firstName, lastName FROM customer WHERE customerId = ?",
+          [user.customerId]
+        );
+        if (customerRows.length > 0) {
+          firstName = customerRows[0].firstName;
+          lastName = customerRows[0].lastName;
+        }
+      }
+    } catch (error) {
+      console.error("Something went wrong:", error);
     }
 
     const token = jwt.sign(
@@ -45,8 +69,9 @@ exports.login = async (req, res) => {
         membershipId: user.membershipId,
         customerId: user.customerId,
         username: user.username,
-        firstName: customerRows[0].firstName,
-        lastName: customerRows[0].lastName,
+        role: userRole,
+        firstName: firstName,
+        lastName: lastName,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -60,12 +85,14 @@ exports.login = async (req, res) => {
         membershipId: user.membershipId,
         customerId: user.customerId,
         username: user.username,
-        firstName: customerRows[0].firstName,
-        lastName: customerRows[0].lastName,
+        role: userRole,
+        firstName: firstName,
+        lastName: lastName,
       },
       token,
     });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
       message: "Server error during login",

@@ -14,7 +14,7 @@ import { Container } from "@/components/common/Container";
 import { Button } from "@/components/common/Button";
 import { InputField } from "@/components/common/InputField";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "@/services";
+import { memberService, trainerService } from "@/services";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -26,7 +26,7 @@ import { onRetry } from "@/utils/onRetry";
 export default function EditProfileScreen() {
   const router = useRouter();
   const { profileData: profileDataParam } = useLocalSearchParams();
-  const { user, logout } = useAuth();
+  const { user, logout, userRole } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,10 @@ export default function EditProfileScreen() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const data = await memberService.getProfile();
+      const data =
+        userRole === "member"
+          ? await memberService.getProfile()
+          : await trainerService.getProfile();
       if (data.success && data.user) {
         setFirstName(data.user.firstName || "");
         setLastName(data.user.lastName || "");
@@ -342,14 +345,24 @@ export default function EditProfileScreen() {
         .toISOString()
         .split("T")[0];
 
-      const response = await memberService.updateProfile({
-        firstName,
-        lastName,
-        gender,
-        birthdate: formattedDate,
-        address: formattedAddress,
-        phoneNumber,
-      });
+      const response =
+        userRole === "member"
+          ? await memberService.updateProfile({
+              firstName,
+              lastName,
+              gender,
+              birthdate: formattedDate,
+              address: formattedAddress,
+              phoneNumber,
+            })
+          : await trainerService.updateProfile({
+              firstName,
+              lastName,
+              gender,
+              birthdate: formattedDate,
+              address: formattedAddress,
+              phoneNumber,
+            });
 
       if (response.success) {
         Alert.alert("Success", "Your profile has been updated successfully", [

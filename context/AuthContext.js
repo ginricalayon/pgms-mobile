@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -13,6 +14,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authService.logout();
       setUser(null);
+      setUserRole(null);
     } catch (err) {
       console.error("Logout error:", err);
     }
@@ -28,7 +30,9 @@ export const AuthProvider = ({ children }) => {
       try {
         setLoading(true);
         const currentUser = await authService.getCurrentUser();
+        const role = await authService.getUserRole();
         setUser(currentUser);
+        setUserRole(role);
       } catch (err) {
         console.error("Error loading user:", err);
         setError("Failed to load user data");
@@ -46,7 +50,8 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       const data = await authService.login(username, password);
       setUser(data.user);
-      return { success: true };
+      setUserRole(data.user.role);
+      return { success: true, role: data.user.role };
     } catch (err) {
       console.log("Login error:", err);
       setError(err.message || "Authentication failed");
@@ -64,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         if (response.success) {
           await authService.updateStoredUser(response.user);
           setUser(response.user);
+          setUserRole(response.user.role);
         }
       }
     } catch (err) {
@@ -77,6 +83,7 @@ export const AuthProvider = ({ children }) => {
 
   const contextValue = {
     user,
+    userRole,
     loading,
     error,
     login,

@@ -2,10 +2,12 @@ import { Redirect } from "expo-router";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useEffect, useState } from "react";
 import { LoadingView } from "@/components/common/LoadingView";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Index() {
   const { checkAuth } = useAuthGuard();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { userRole } = useAuth();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +31,11 @@ export default function Index() {
   }
 
   if (isAuthenticated) {
-    return <Redirect href="/(tabs)/dashboard" />;
+    if (userRole === "trainer") {
+      return <Redirect href="/(trainer-tabs)/dashboard" />;
+    } else {
+      return <Redirect href="/(tabs)/dashboard" />;
+    }
   }
 
   return <Redirect href="/screens/WelcomeScreen" />;

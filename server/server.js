@@ -23,6 +23,7 @@ async function testDBConnection() {
 const authRoutes = require("./routes/authRoutes");
 const memberRoutes = require("./routes/memberRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const trainerRoutes = require("./routes/trainerRoutes");
 
 // Initialize express app
 const app = express();
@@ -39,6 +40,7 @@ app.use(express.static(path.join(__dirname, "..")));
 app.use("/api/auth", authRoutes);
 app.use("/api/member", memberRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/trainer", trainerRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {

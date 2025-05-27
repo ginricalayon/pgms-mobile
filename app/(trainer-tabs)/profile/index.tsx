@@ -15,30 +15,27 @@ import { Button } from "@/components/common/Button";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { memberService } from "@/services";
+import { memberService, trainerService } from "@/services";
 import ProfileInfo from "@/components/ProfileInfo";
 import { formatDate } from "@/utils/dateUtils";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 import { onRetry } from "@/utils/onRetry";
 
-export default function Profile() {
+export default function TrainerProfile() {
   const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [profileData, setProfileData] = useState<{ user: ProfileData } | null>(
-    null
-  );
-  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [profileData, setProfileData] = useState<TrainerProfile | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const data = await memberService.getProfile();
+      const data = await trainerService.getProfile();
       setProfileData(data);
       setError(null);
     } catch (err: any) {
@@ -90,12 +87,11 @@ export default function Profile() {
   };
 
   const handleEditProfile = () => {
-    if (profileData?.user) {
+    if (profileData) {
       router.push({
         pathname: "/screens/EditProfileScreen",
         params: {
-          profileData: JSON.stringify(profileData.user),
-          userRole: "member",
+          profileData: JSON.stringify(profileData),
         },
       });
     }
@@ -144,15 +140,11 @@ export default function Profile() {
               isDarkMode ? "bg-gray-700" : "bg-light-100"
             } rounded-full h-32 w-32 items-center justify-center mb-4`}
           >
-            {profileData?.user?.picture && (
-              <Image
-                source={{
-                  uri: `data:image/jpeg;base64,${profileData.user.picture}`,
-                }}
-                style={{ width: 110, height: 110, borderRadius: 70 }}
-                resizeMode="cover"
-              />
-            )}
+            <Ionicons
+              name="person-circle-outline"
+              size={110}
+              color={isDarkMode ? "#60A5FA" : "#2563EB"}
+            />
           </View>
           <View className="flex-row items-center">
             <Text
@@ -160,47 +152,18 @@ export default function Profile() {
                 isDarkMode ? "text-white" : "text-text-primary"
               } text-xl font-bold`}
             >
-              {profileData?.user?.firstName && profileData?.user?.lastName
-                ? `${profileData.user.firstName} ${profileData.user.lastName}`
+              {profileData?.firstName && profileData?.lastName
+                ? `${profileData.firstName} ${profileData.lastName}`
                 : "Member"}
             </Text>
-            {profileData?.user?.isRegular === 1 && (
-              <TouchableOpacity
-                onPress={() => setTooltipVisible(!tooltipVisible)}
-                style={{ position: "relative" }}
-              >
-                <Ionicons
-                  name="checkmark-circle"
-                  size={22}
-                  color="#22C55E"
-                  style={{ marginLeft: 2 }}
-                />
-              </TouchableOpacity>
-            )}
           </View>
           <Text
             className={`${
               isDarkMode ? "text-gray-300" : "text-text-secondary"
             } mt-1`}
           >
-            Member ID: {profileData?.user?.membershipId || "N/A"}
+            Trainer ID: {profileData?.ptId || "N/A"}
           </Text>
-          {tooltipVisible && (
-            <View
-              className={`absolute z-10 ${
-                isDarkMode ? "bg-gray-700" : "bg-white"
-              } p-2 rounded shadow-lg`}
-              style={{ top: 170, left: 170 }}
-            >
-              <Text
-                className={`${
-                  isDarkMode ? "text-white" : "text-text-primary"
-                } text-xs`}
-              >
-                Regular Member
-              </Text>
-            </View>
-          )}
         </View>
 
         {/* Profile Information */}
@@ -227,22 +190,22 @@ export default function Profile() {
           </View>
           <ProfileInfo
             label="Gender"
-            value={profileData?.user?.gender}
+            value={profileData?.gender}
             darkMode={isDarkMode}
           />
           <ProfileInfo
             label="Birthdate"
-            value={formatDate(profileData?.user?.birthdate)}
+            value={formatDate(profileData?.birthdate)}
             darkMode={isDarkMode}
           />
           <ProfileInfo
             label="Address"
-            value={profileData?.user?.address}
+            value={profileData?.address}
             darkMode={isDarkMode}
           />
           <ProfileInfo
             label="Phone Number"
-            value={profileData?.user?.phoneNumber}
+            value={profileData?.phoneNumber}
             isLast={true}
             darkMode={isDarkMode}
           />

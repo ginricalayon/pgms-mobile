@@ -12,13 +12,15 @@ import { useRouter } from "expo-router";
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/common/Button";
 import { InputField } from "@/components/common/InputField";
-import { memberService } from "@/services";
+import { memberService, trainerService } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
+  const { userRole } = useAuth();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -134,10 +136,10 @@ export default function ChangePasswordScreen() {
     try {
       setSubmitting(true);
 
-      const response = await memberService.changePassword(
-        currentPassword,
-        newPassword
-      );
+      const response =
+        userRole === "member"
+          ? await memberService.changePassword(currentPassword, newPassword)
+          : await trainerService.changePassword(currentPassword, newPassword);
 
       if (response.success) {
         Alert.alert("Success", "Your password has been updated successfully", [
@@ -150,7 +152,6 @@ export default function ChangePasswordScreen() {
         Alert.alert("Error", response.message || "Failed to update password");
       }
     } catch (err: any) {
-      console.error("Error updating password:", err);
       Alert.alert("Error", err.message || "Failed to update password");
     } finally {
       setSubmitting(false);

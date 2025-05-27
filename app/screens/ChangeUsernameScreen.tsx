@@ -12,14 +12,14 @@ import { useRouter } from "expo-router";
 import { Container } from "@/components/common/Container";
 import { Button } from "@/components/common/Button";
 import { InputField } from "@/components/common/InputField";
-import { memberService } from "@/services";
+import { memberService, trainerService } from "@/services";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function ChangeUsernameScreen() {
   const router = useRouter();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, userRole } = useAuth();
   const { isDarkMode } = useTheme();
 
   const [currentUsername, setCurrentUsername] = useState("");
@@ -42,7 +42,10 @@ export default function ChangeUsernameScreen() {
 
   const fetchProfile = async () => {
     try {
-      const data = await memberService.getProfile();
+      const data =
+        userRole === "member"
+          ? await memberService.getProfile()
+          : await trainerService.getProfile();
       if (data.success && data.user) {
         setCurrentUsername(data.user.username || "");
       }
@@ -131,10 +134,10 @@ export default function ChangeUsernameScreen() {
     try {
       setSubmitting(true);
 
-      const response = await memberService.changeUsername(
-        password,
-        newUsername
-      );
+      const response =
+        userRole === "member"
+          ? await memberService.changeUsername(password, newUsername)
+          : await trainerService.changeUsername(password, newUsername);
 
       if (response.success) {
         // Update user information in context
