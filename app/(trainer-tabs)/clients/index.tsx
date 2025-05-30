@@ -28,7 +28,6 @@ export default function TrainerClients() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("All");
   const [clients, setClients] = useState<Client[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,8 +36,6 @@ export default function TrainerClients() {
   );
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
-
-  const filters = ["All", "Active", "Expired"];
 
   const fetchClients = async () => {
     try {
@@ -69,24 +66,6 @@ export default function TrainerClients() {
     setError(null);
     fetchClients();
   }, []);
-
-  const filteredClients = (clients || []).filter((client) => {
-    try {
-      const searchTerm = searchQuery?.trim()?.toLowerCase() || "";
-      const matchesSearch =
-        searchTerm === "" ||
-        (client.firstName &&
-          client.firstName.toLowerCase().includes(searchTerm));
-
-      const matchesFilter =
-        selectedFilter === "All" || client.status === selectedFilter;
-
-      return matchesSearch && matchesFilter;
-    } catch (error) {
-      console.error("Error filtering client:", error);
-      return true;
-    }
-  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -157,7 +136,7 @@ export default function TrainerClients() {
                 isDarkMode ? "text-gray-300" : "text-text-secondary"
               } text-sm mr-2`}
             >
-              {filteredClients.length} clients
+              {clients.length} clients
             </Text>
           </View>
         </View>
@@ -188,44 +167,15 @@ export default function TrainerClients() {
           </View>
         </View>
 
-        {/* Filter Tabs */}
-        <View className="flex-row mb-4">
-          {filters.map((filter) => (
-            <TouchableOpacity
-              key={filter}
-              onPress={() => setSelectedFilter(filter)}
-              className={`mr-3 px-4 py-2 rounded-full ${
-                selectedFilter === filter
-                  ? "bg-accent"
-                  : isDarkMode
-                  ? "bg-gray-800 border border-gray-700"
-                  : "bg-white border border-light-200"
-              }`}
-            >
-              <Text
-                className={`${
-                  selectedFilter === filter
-                    ? "text-white font-medium"
-                    : isDarkMode
-                    ? "text-gray-300"
-                    : "text-text-secondary"
-                }`}
-              >
-                {filter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
         {/* Clients List */}
-        {filteredClients.length > 0 ? (
+        {clients.length > 0 ? (
           <View className="space-y-3 gap-y-3 mb-10">
-            {filteredClients.map((client) => (
+            {clients.map((client) => (
               <TouchableOpacity
                 key={client.membershipId}
                 className={`${
                   isDarkMode ? "bg-gray-800" : "bg-white"
-                } rounded-xl p-4 shadow-sm border ${
+                } rounded-xl p-4 border ${
                   isDarkMode ? "border-gray-700" : "border-light-200"
                 }`}
                 onPress={() => handleClientPress(client.membershipId)}
@@ -250,18 +200,18 @@ export default function TrainerClients() {
                   </View>
                   <View className="items-end">
                     <Text
-                      className={`text-sm font-medium ${getStatusColor(
-                        client.status
-                      )}`}
-                    >
-                      {client.status}
-                    </Text>
-                    <Text
                       className={`${
                         isDarkMode ? "text-gray-400" : "text-text-secondary"
                       } text-xs mt-1`}
                     >
                       ID: {client.membershipId}
+                    </Text>
+                    <Text
+                      className={`${
+                        isDarkMode ? "text-gray-400" : "text-text-secondary"
+                      } text-xs ml-1`}
+                    >
+                      {client.gender}
                     </Text>
                   </View>
                 </View>
@@ -299,20 +249,6 @@ export default function TrainerClients() {
                     </View>
                   </View>
                   <View className="items-end">
-                    <View className="flex-row items-center mb-1">
-                      <Ionicons
-                        name="person-outline"
-                        size={14}
-                        color={isDarkMode ? "#9CA3AF" : "#6B7280"}
-                      />
-                      <Text
-                        className={`${
-                          isDarkMode ? "text-gray-400" : "text-text-secondary"
-                        } text-xs ml-1`}
-                      >
-                        {client.gender}
-                      </Text>
-                    </View>
                     <TouchableOpacity className="flex-row items-center">
                       <Ionicons
                         name="chevron-forward"

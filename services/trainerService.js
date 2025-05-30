@@ -79,78 +79,41 @@ export const trainerService = {
   },
 
   // Get trainer schedules
-  getSchedules: async (date = null) => {
+  getSchedules: async () => {
     try {
-      const url = date
-        ? `/trainer/schedules?date=${date}`
-        : "/trainer/schedules";
-      const response = await api.get(url);
+      const response = await api.get("/trainer/schedules");
+      return response.data.schedules;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  // Create new schedule slot
+  createScheduleSlot: async (scheduleData) => {
+    try {
+      const response = await api.post("/trainer/schedules", scheduleData);
       return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  // Create a new training session
-  createSession: async (sessionData) => {
+  // Delete schedule slot
+  deleteScheduleSlot: async (scheduleId) => {
     try {
-      const response = await api.post("/trainer/sessions", sessionData);
+      const response = await api.delete(`/trainer/schedules/${scheduleId}`);
       return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  // Update session status
-  updateSessionStatus: async (sessionId, status) => {
+  // Update schedule slot
+  updateScheduleSlot: async (scheduleId, updateData) => {
     try {
-      const response = await api.patch(
-        `/trainer/sessions/${sessionId}/status`,
-        {
-          status,
-        }
-      );
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  // Get earnings data
-  getEarnings: async (period = "month") => {
-    try {
-      const response = await api.get(`/trainer/earnings?period=${period}`);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  // Get trainer availability
-  getAvailability: async () => {
-    try {
-      const response = await api.get("/trainer/availability");
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  // Update trainer availability
-  updateAvailability: async (availabilityData) => {
-    try {
-      const response = await api.put("/trainer/availability", availabilityData);
-      return response.data;
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  // Get session statistics
-  getSessionStats: async (period = "month") => {
-    try {
-      const response = await api.get(
-        `/trainer/stats/sessions?period=${period}`
+      const response = await api.put(
+        `/trainer/schedules/${scheduleId}`,
+        updateData
       );
       return response.data;
     } catch (error) {

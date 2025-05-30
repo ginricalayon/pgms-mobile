@@ -109,7 +109,7 @@ export default function TrainerDashboard() {
               className="p-2"
             >
               <Ionicons
-                name="person-circle-outline"
+                name="chatbubble-ellipses-outline"
                 size={30}
                 color={isDarkMode ? "#FFFFFF" : "#2563EB"}
               />
@@ -329,7 +329,7 @@ export default function TrainerDashboard() {
                   isDarkMode ? "text-white" : "text-text-primary"
                 } ml-3 font-medium`}
               >
-                View Today's Schedule
+                Manage Schedules
               </Text>
             </TouchableOpacity>
 
@@ -349,7 +349,27 @@ export default function TrainerDashboard() {
                   isDarkMode ? "text-white" : "text-text-primary"
                 } ml-3 font-medium`}
               >
-                Manage Clients
+                View Clients
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.navigate("/(trainer-tabs)/clients" as any)}
+              className={`flex-row items-center p-3 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-light-100"
+              }`}
+            >
+              <Ionicons
+                name="chatbubble-ellipses"
+                size={24}
+                color={isDarkMode ? "#60A5FA" : "#2563EB"}
+              />
+              <Text
+                className={`${
+                  isDarkMode ? "text-white" : "text-text-primary"
+                } ml-3 font-medium`}
+              >
+                Message Clients
               </Text>
             </TouchableOpacity>
           </View>

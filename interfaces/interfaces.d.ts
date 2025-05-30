@@ -172,3 +172,13 @@ interface ClientDetails extends Client {
   schedules: Schedule[];
   picture?: string;
 }
+
+interface ScheduleSlot {
+  ptScheduleId: string;
+  ptId: string;
+  scheduleDate: string;
+  startTime: string;
+  endTime: string;
+  clientName?: string;
+  isAvailable: boolean;
+}

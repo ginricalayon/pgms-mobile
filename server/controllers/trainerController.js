@@ -507,32 +507,44 @@ exports.changePassword = async (req, res) => {
 // Get trainer schedules
 exports.getSchedules = async (req, res) => {
   try {
-    const ptId = req.user.ptId;
-    const { date } = req.query;
+    const ptId = req.user.customerId;
 
-    let query = `
-      SELECT pts.ptScheduleId, pts.scheduleDate, pts.startTime, pts.endTime,
-             c.firstName, c.lastName, m.membershipId
+    const query = `
+      SELECT 
+        pts.ptScheduleId, 
+        pts.ptId,
+        pts.scheduleDate, 
+        pts.startTime, 
+        pts.endTime,
+        pts.isAvailable,
+        CASE 
+          WHEN ms.memberScheduleId IS NOT NULL THEN CONCAT(c.firstName, ' ', c.lastName) 
+          ELSE NULL 
+        END as clientName
       FROM pt_schedule pts
-      LEFT JOIN membership m ON pts.membershipId = m.membershipId
+      LEFT JOIN member_schedule ms ON pts.ptScheduleId = ms.ptScheduleId
+      LEFT JOIN membership m ON ms.memberId = m.membershipId
       LEFT JOIN customer c ON m.customerId = c.customerId
       WHERE pts.ptId = ?
+      ORDER BY pts.scheduleDate, pts.startTime
     `;
 
-    let params = [ptId];
+    const [rows] = await db.execute(query, [ptId]);
 
-    if (date) {
-      query += " AND DATE(pts.scheduleDate) = ?";
-      params.push(date);
-    }
-
-    query += " ORDER BY pts.scheduleDate, pts.startTime";
-
-    const [rows] = await db.execute(query, params);
+    // Transform the data to match frontend expectations
+    const schedules = rows.map((row) => ({
+      ptScheduleId: row.ptScheduleId.toString(),
+      ptId: row.ptId,
+      scheduleDate: row.scheduleDate,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      isAvailable: Boolean(row.isAvailable),
+      clientName: row.clientName,
+    }));
 
     res.status(200).json({
       success: true,
-      data: rows,
+      schedules: schedules,
     });
   } catch (error) {
     console.error("Get schedules error:", error);
@@ -543,195 +555,308 @@ exports.getSchedules = async (req, res) => {
   }
 };
 
-// Create a new training session
-exports.createSession = async (req, res) => {
+// Helper function to update trainer availability based on schedule slots
+const updateTrainerAvailability = async (ptId) => {
   try {
-    const ptId = req.user.ptId;
-    const { membershipId, scheduleDate, startTime, endTime } = req.body;
-
-    const [result] = await db.execute(
-      "INSERT INTO pt_schedule (ptId, membershipId, scheduleDate, startTime, endTime) VALUES (?, ?, ?, ?, ?)",
-      [ptId, membershipId, scheduleDate, startTime, endTime]
+    // Count available schedule slots for this trainer
+    const [countResult] = await db.execute(
+      "SELECT COUNT(*) as availableCount FROM pt_schedule WHERE ptId = ? AND isAvailable = 1",
+      [ptId]
     );
+
+    const availableCount = countResult[0].availableCount;
+
+    // Update trainer availability based on available schedule count
+    const isAvailable = availableCount > 0 ? 1 : 0;
+
+    await db.execute(
+      "UPDATE personal_trainer SET isAvailable = ? WHERE ptId = ?",
+      [isAvailable, ptId]
+    );
+  } catch (error) {
+    console.error("Error updating trainer availability:", error);
+  }
+};
+
+// Create multiple schedule slots
+exports.createSchedules = async (req, res) => {
+  try {
+    const ptId = req.user.customerId;
+    const { startTime, endTime, selectedDays } = req.body;
+
+    // Validate input
+    if (
+      !startTime ||
+      !endTime ||
+      !selectedDays ||
+      !Array.isArray(selectedDays) ||
+      selectedDays.length === 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Start time, end time, and at least one day are required",
+      });
+    }
+
+    // Check for existing schedule conflicts
+    const conflictQuery = `
+      SELECT scheduleDate, startTime, endTime 
+      FROM pt_schedule 
+      WHERE ptId = ? AND scheduleDate IN (${selectedDays
+        .map(() => "?")
+        .join(",")}) 
+      AND (
+        (STR_TO_DATE(startTime, '%h:%i %p') <= STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p')) OR
+        (STR_TO_DATE(startTime, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') >= STR_TO_DATE(?, '%h:%i %p')) OR
+        (STR_TO_DATE(startTime, '%h:%i %p') >= STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') <= STR_TO_DATE(?, '%h:%i %p'))
+      )
+    `;
+
+    const conflictParams = [
+      ptId,
+      ...selectedDays,
+      startTime,
+      startTime, // Check if existing schedule starts before/at new start and ends after new start
+      endTime,
+      endTime, // Check if existing schedule starts before new end and ends at/after new end
+      startTime,
+      endTime, // Check if existing schedule is completely within new schedule
+    ];
+
+    const [existingSchedules] = await db.execute(conflictQuery, conflictParams);
+
+    if (existingSchedules.length > 0) {
+      const conflictDetails = existingSchedules.map(
+        (schedule) =>
+          `${schedule.scheduleDate} ${schedule.startTime}-${schedule.endTime}`
+      );
+      return res.status(409).json({
+        success: false,
+        message: `Schedule conflicts with existing schedules: ${conflictDetails.join(
+          ", "
+        )}`,
+      });
+    }
+
+    // Create schedule entries for each selected day (no conflicts found)
+    const schedulePromises = selectedDays.map(async (day) => {
+      const query = `
+        INSERT INTO pt_schedule (ptId, scheduleDate, startTime, endTime, isAvailable)
+        VALUES (?, ?, ?, ?, 1)
+      `;
+
+      return db.execute(query, [ptId, day, startTime, endTime]);
+    });
+
+    // Execute all insertions
+    await Promise.all(schedulePromises);
+
+    // Update trainer availability
+    await updateTrainerAvailability(ptId);
 
     res.status(201).json({
       success: true,
-      message: "Training session created successfully",
-      data: { ptScheduleId: result.insertId },
+      message: `Successfully created ${selectedDays.length} schedule slots`,
+      data: {
+        count: selectedDays.length,
+        days: selectedDays,
+        startTime,
+        endTime,
+      },
     });
   } catch (error) {
-    console.error("Create session error:", error);
+    console.error("Create schedules error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error while creating session",
+      message: "Server error while creating schedules",
     });
   }
 };
 
-// Update session status (if you have a status column)
-exports.updateSessionStatus = async (req, res) => {
+// Delete schedule slot
+exports.deleteSchedule = async (req, res) => {
   try {
-    const ptId = req.user.ptId;
-    const { sessionId } = req.params;
-    const { status } = req.body;
+    const ptId = req.user.customerId;
+    const { scheduleId } = req.params;
 
-    // First verify the session belongs to this trainer
-    const [checkRows] = await db.execute(
-      "SELECT ptScheduleId FROM pt_schedule WHERE ptScheduleId = ? AND ptId = ?",
-      [sessionId, ptId]
-    );
-
-    if (checkRows.length === 0) {
-      return res.status(404).json({
+    if (!scheduleId) {
+      return res.status(400).json({
         success: false,
-        message: "Session not found or not authorized",
+        message: "Schedule ID is required",
       });
     }
 
-    // Update status (assuming you add a status column to pt_schedule table)
-    await db.execute(
-      "UPDATE pt_schedule SET status = ? WHERE ptScheduleId = ?",
-      [status, sessionId]
+    // First check if the schedule exists and belongs to this trainer
+    const [scheduleRows] = await db.execute(
+      "SELECT ptScheduleId, ptId, isAvailable FROM pt_schedule WHERE ptScheduleId = ? AND ptId = ?",
+      [scheduleId, ptId]
     );
 
-    res.status(200).json({
-      success: true,
-      message: "Session status updated successfully",
-    });
-  } catch (error) {
-    console.error("Update session status error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while updating session status",
-    });
-  }
-};
-
-// Get earnings data
-exports.getEarnings = async (req, res) => {
-  try {
-    const ptId = req.user.ptId;
-    const { period = "month" } = req.query;
-
-    let dateCondition = "";
-    if (period === "month") {
-      dateCondition =
-        "AND MONTH(m.start) = MONTH(CURDATE()) AND YEAR(m.start) = YEAR(CURDATE())";
-    } else if (period === "year") {
-      dateCondition = "AND YEAR(m.start) = YEAR(CURDATE())";
-    }
-
-    const [rows] = await db.execute(
-      `SELECT 
-        COUNT(m.membershipId) as totalMemberships,
-        COALESCE(SUM(ptr.amount), 0) as totalEarnings,
-        AVG(ptr.amount) as avgEarningsPerClient
-       FROM membership m
-       JOIN pt_rate ptr ON m.ptRateId = ptr.ptRateId
-       WHERE m.ptId = ? ${dateCondition}`,
-      [ptId]
-    );
-
-    res.status(200).json({
-      success: true,
-      data: rows[0],
-    });
-  } catch (error) {
-    console.error("Get earnings error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while fetching earnings",
-    });
-  }
-};
-
-// Get trainer availability
-exports.getAvailability = async (req, res) => {
-  try {
-    const ptId = req.user.ptId;
-
-    const [rows] = await db.execute(
-      "SELECT isAvailable FROM trainer WHERE ptId = ?",
-      [ptId]
-    );
-
-    if (rows.length === 0) {
+    if (scheduleRows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Trainer not found",
+        message: "Schedule not found or does not belong to this trainer",
       });
     }
 
+    // Check if the schedule is currently booked (not available)
+    if (!scheduleRows[0].isAvailable) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot delete a booked schedule. Please contact an admin if you need to cancel a booked session.",
+      });
+    }
+
+    // Delete the schedule
+    const [deleteResult] = await db.execute(
+      "DELETE FROM pt_schedule WHERE ptScheduleId = ? AND ptId = ?",
+      [scheduleId, ptId]
+    );
+
+    if (deleteResult.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Failed to delete schedule",
+      });
+    }
+
+    // Update trainer availability after deleting schedule
+    await updateTrainerAvailability(ptId);
+
     res.status(200).json({
       success: true,
-      data: { isAvailable: rows[0].isAvailable },
+      message: "Schedule deleted successfully",
     });
   } catch (error) {
-    console.error("Get availability error:", error);
+    console.error("Delete schedule error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error while fetching availability",
+      message: "Server error while deleting schedule",
     });
   }
 };
 
-// Update trainer availability
-exports.updateAvailability = async (req, res) => {
+// Update schedule slot
+exports.updateSchedule = async (req, res) => {
   try {
-    const ptId = req.user.ptId;
-    const { isAvailable } = req.body;
+    const ptId = req.user.customerId;
+    const { scheduleId } = req.params;
+    const { startTime, endTime, scheduleDate } = req.body;
 
-    await db.execute("UPDATE trainer SET isAvailable = ? WHERE ptId = ?", [
-      isAvailable,
+    if (!scheduleId) {
+      return res.status(400).json({
+        success: false,
+        message: "Schedule ID is required",
+      });
+    }
+
+    // Validate input
+    if (!startTime || !endTime || !scheduleDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Start time, end time, and schedule date are required",
+      });
+    }
+
+    // First check if the schedule exists and belongs to this trainer
+    const [scheduleRows] = await db.execute(
+      "SELECT ptScheduleId, ptId, isAvailable, scheduleDate, startTime, endTime FROM pt_schedule WHERE ptScheduleId = ? AND ptId = ?",
+      [scheduleId, ptId]
+    );
+
+    if (scheduleRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Schedule not found or does not belong to this trainer",
+      });
+    }
+
+    // Check if the schedule is currently booked (not available)
+    if (!scheduleRows[0].isAvailable) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot update a booked schedule. Please contact an admin if you need to modify a booked session.",
+      });
+    }
+
+    // Check for existing schedule conflicts (excluding the current schedule being updated)
+    const conflictQuery = `
+      SELECT scheduleDate, startTime, endTime 
+      FROM pt_schedule 
+      WHERE ptId = ? AND scheduleDate = ? AND ptScheduleId != ?
+      AND (
+        (STR_TO_DATE(startTime, '%h:%i %p') <= STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') > STR_TO_DATE(?, '%h:%i %p')) OR
+        (STR_TO_DATE(startTime, '%h:%i %p') < STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') >= STR_TO_DATE(?, '%h:%i %p')) OR
+        (STR_TO_DATE(startTime, '%h:%i %p') >= STR_TO_DATE(?, '%h:%i %p') AND STR_TO_DATE(endTime, '%h:%i %p') <= STR_TO_DATE(?, '%h:%i %p'))
+      )
+    `;
+
+    const conflictParams = [
+      ptId,
+      scheduleDate,
+      scheduleId, // Exclude current schedule from conflict check
+      startTime,
+      startTime, // Check if existing schedule starts before/at new start and ends after new start
+      endTime,
+      endTime, // Check if existing schedule starts before new end and ends at/after new end
+      startTime,
+      endTime, // Check if existing schedule is completely within new schedule
+    ];
+
+    const [existingSchedules] = await db.execute(conflictQuery, conflictParams);
+
+    if (existingSchedules.length > 0) {
+      const conflictDetails = existingSchedules.map(
+        (schedule) =>
+          `${schedule.scheduleDate} ${schedule.startTime}-${schedule.endTime}`
+      );
+      return res.status(409).json({
+        success: false,
+        message: `Schedule conflicts with existing schedules: ${conflictDetails.join(
+          ", "
+        )}`,
+      });
+    }
+
+    // Update the schedule
+    const updateQuery = `
+      UPDATE pt_schedule 
+      SET scheduleDate = ?, startTime = ?, endTime = ?
+      WHERE ptScheduleId = ? AND ptId = ?
+    `;
+
+    const [updateResult] = await db.execute(updateQuery, [
+      scheduleDate,
+      startTime,
+      endTime,
+      scheduleId,
       ptId,
     ]);
 
-    res.status(200).json({
-      success: true,
-      message: "Availability updated successfully",
-    });
-  } catch (error) {
-    console.error("Update availability error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error while updating availability",
-    });
-  }
-};
-
-// Get session statistics
-exports.getSessionStats = async (req, res) => {
-  try {
-    const ptId = req.user.ptId;
-    const { period = "month" } = req.query;
-
-    let dateCondition = "";
-    if (period === "month") {
-      dateCondition =
-        "AND MONTH(pts.scheduleDate) = MONTH(CURDATE()) AND YEAR(pts.scheduleDate) = YEAR(CURDATE())";
-    } else if (period === "year") {
-      dateCondition = "AND YEAR(pts.scheduleDate) = YEAR(CURDATE())";
+    if (updateResult.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Failed to update schedule",
+      });
     }
 
-    const [rows] = await db.execute(
-      `SELECT 
-        COUNT(*) as totalSessions,
-        COUNT(CASE WHEN pts.scheduleDate < CURDATE() THEN 1 END) as completedSessions,
-        COUNT(CASE WHEN pts.scheduleDate >= CURDATE() THEN 1 END) as upcomingSessions
-       FROM pt_schedule pts
-       WHERE pts.ptId = ? ${dateCondition}`,
-      [ptId]
-    );
-
     res.status(200).json({
       success: true,
-      data: rows[0],
+      message: "Schedule updated successfully",
+      data: {
+        scheduleId,
+        scheduleDate,
+        startTime,
+        endTime,
+      },
     });
   } catch (error) {
-    console.error("Get session stats error:", error);
+    console.error("Update schedule error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error while fetching session statistics",
+      message: "Server error while updating schedule",
     });
   }
 };

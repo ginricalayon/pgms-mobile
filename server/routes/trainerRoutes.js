@@ -33,7 +33,18 @@ router.put(
 );
 
 // // Trainer schedules
-// router.get("/schedules", authMiddleware, trainerController.getSchedules);
+router.get("/schedules", authMiddleware, trainerController.getSchedules);
+router.post("/schedules", authMiddleware, trainerController.createSchedules);
+router.put(
+  "/schedules/:scheduleId",
+  authMiddleware,
+  trainerController.updateSchedule
+);
+router.delete(
+  "/schedules/:scheduleId",
+  authMiddleware,
+  trainerController.deleteSchedule
+);
 // router.post("/sessions", authMiddleware, trainerController.createSession);
 // router.patch("/sessions/:sessionId/status", authMiddleware, trainerController.updateSessionStatus);
 
