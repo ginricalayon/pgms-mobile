@@ -38,7 +38,7 @@ exports.getMembershipDetails = async (req, res) => {
     const membershipId = req.user.membershipId;
 
     const [rows] = await db.execute(
-      "SELECT m.membershipId, c.firstName as customerFirstName, c.lastName as customerLastName, r.name as rateName, v.validity as rateValidity, p.firstName as trainerFirstName, p.lastName as trainerLastName, m.start, m.end, m.isRegular, m.isFreeze, m.freezeStartDate, m.freezeEndDate, m.cancelled_date, m.status, m.picture FROM membership m JOIN customer c ON m.customerId = c.customerId JOIN gym_rates r ON r.rateId = m.rateId JOIN rate_validity v ON v.validityId = r.validityId LEFT JOIN pt_info p ON m.ptId = p.ptId WHERE m.membershipId = ?",
+      "SELECT m.membershipId, c.firstName as customerFirstName, c.lastName as customerLastName, r.name as rateName, v.validity as rateValidity, p.firstName as trainerFirstName, p.lastName as trainerLastName, p.ptId as trainerId, m.start, m.end, m.isRegular, m.isFreeze, m.freezeStartDate, m.freezeEndDate, m.cancelled_date, m.status, m.picture FROM membership m JOIN customer c ON m.customerId = c.customerId JOIN gym_rates r ON r.rateId = m.rateId JOIN rate_validity v ON v.validityId = r.validityId LEFT JOIN pt_info p ON m.ptId = p.ptId WHERE m.membershipId = ?",
       [membershipId]
     );
 

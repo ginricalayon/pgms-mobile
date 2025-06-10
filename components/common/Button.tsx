@@ -113,7 +113,9 @@ export const Button = forwardRef<
           {icon && iconPosition === "left" && (
             <View className="mr-2">{icon}</View>
           )}
-          <Text className="text-white text-center font-semibold ${textSizeClasses[size]}">
+          <Text
+            className={`text-white text-center font-semibold ${textSizeClasses[size]}`}
+          >
             {title}
           </Text>
           {icon && iconPosition === "right" && (

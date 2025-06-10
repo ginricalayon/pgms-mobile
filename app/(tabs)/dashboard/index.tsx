@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { memberService } from "@/services";
+import { messageService } from "@/services/messageService";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 import { Button } from "@/components/common/Button";
@@ -38,6 +39,7 @@ export default function Dashboard() {
   const [membershipDetailsData, setmembershipDetailsData] = useState<{
     user: membershipDetails;
   } | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchMembershipDetails = async () => {
     try {
@@ -53,10 +55,25 @@ export default function Dashboard() {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const conversations = await messageService.getConversations();
+      const totalUnread = conversations.reduce(
+        (total, conv) => total + (conv.unreadCount || 0),
+        0
+      );
+      setUnreadCount(totalUnread);
+    } catch (err) {
+      // Silently fail to avoid disrupting the main dashboard
+      console.log("Failed to fetch unread count:", err);
+    }
+  };
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setError(null);
     fetchMembershipDetails();
+    fetchUnreadCount();
   }, []);
 
   useEffect(() => {
@@ -66,11 +83,24 @@ export default function Dashboard() {
     }
 
     fetchMembershipDetails();
+    fetchUnreadCount();
+
+    // Subscribe to conversation updates for real-time unread count
+    const cleanup = messageService.subscribeToConversations((conversations) => {
+      const totalUnread = conversations.reduce(
+        (total, conv) => total + (conv.unreadCount || 0),
+        0
+      );
+      setUnreadCount(totalUnread);
+    });
+
+    return cleanup;
   }, [user]);
 
   useEffect(() => {
     if (refresh) {
       fetchMembershipDetails();
+      fetchUnreadCount();
     }
   }, [refresh]);
 
@@ -121,14 +151,21 @@ export default function Dashboard() {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.navigate("/profile" as any)}
-              className="p-2"
+              onPress={() => router.push("screens/message" as any)}
+              className="p-2 relative"
             >
               <Ionicons
-                name="person-circle-outline"
+                name="chatbubble-ellipses-outline"
                 size={30}
                 color={isDarkMode ? "#FFFFFF" : "#2563EB"}
               />
+              {unreadCount > 0 && (
+                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center px-1">
+                  <Text className="text-white text-xs font-bold">
+                    {unreadCount > 9 ? "9+" : unreadCount.toString()}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -245,6 +282,109 @@ export default function Dashboard() {
             </View>
           </View>
 
+          {/* Your Personal Trainer Section */}
+          {membershipDetailsData?.user?.trainerFirstName &&
+            membershipDetailsData?.user?.trainerLastName && (
+              <View
+                className={`${
+                  isDarkMode ? "bg-gray-800" : "bg-white"
+                } rounded-xl p-6 shadow-sm mb-6 border ${
+                  isDarkMode ? "border-gray-700" : "border-light-200"
+                } mt-6`}
+              >
+                <View className="flex-row items-center mb-4">
+                  <View className="bg-accent/10 p-2 rounded-lg mr-3">
+                    <Ionicons name="person" size={22} color="#2563EB" />
+                  </View>
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-white" : "text-text-primary"
+                    } text-lg font-bold`}
+                  >
+                    Your Personal Trainer
+                  </Text>
+                </View>
+
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center flex-1">
+                    <View
+                      className={`w-12 h-12 rounded-full ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                      } items-center justify-center mr-4`}
+                    >
+                      <Text
+                        className={`${
+                          isDarkMode ? "text-white" : "text-text-primary"
+                        } font-bold text-lg`}
+                      >
+                        {membershipDetailsData.user.trainerFirstName
+                          .charAt(0)
+                          .toUpperCase()}
+                      </Text>
+                    </View>
+
+                    <View className="flex-1">
+                      <Text
+                        className={`${
+                          isDarkMode ? "text-white" : "text-text-primary"
+                        } text-xl font-bold`}
+                      >
+                        {membershipDetailsData.user.trainerFirstName}{" "}
+                        {membershipDetailsData.user.trainerLastName}
+                      </Text>
+                      <Text
+                        className={`${
+                          isDarkMode ? "text-gray-300" : "text-text-secondary"
+                        } text-sm`}
+                      >
+                        Your dedicated fitness coach
+                      </Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      // Navigate directly to chat with trainer using trainer ID
+                      if (membershipDetailsData?.user?.trainerId) {
+                        router.push(
+                          `screens/message/chat/${membershipDetailsData.user.trainerId}` as any
+                        );
+                      } else {
+                        // Fallback to messages screen if no trainer ID
+                        router.push("screens/message" as any);
+                      }
+                    }}
+                    className={`${
+                      isDarkMode ? "bg-blue-600" : "bg-accent"
+                    } px-4 py-2 rounded-full flex-row items-center`}
+                  >
+                    <Ionicons
+                      name="chatbubble"
+                      size={16}
+                      color="white"
+                      style={{ marginRight: 4 }}
+                    />
+                    <Text className="text-white font-medium text-sm">Chat</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View
+                  className={`mt-4 ${
+                    isDarkMode ? "bg-gray-700" : "bg-light-100"
+                  } rounded-lg p-3`}
+                >
+                  <Text
+                    className={`${
+                      isDarkMode ? "text-gray-300" : "text-text-secondary"
+                    } text-sm text-center`}
+                  >
+                    Need guidance or have questions? Chat with your trainer
+                    anytime!
+                  </Text>
+                </View>
+              </View>
+            )}
+
           {membershipDetailsData?.user?.status === "Expired" ||
           membershipDetailsData?.user?.status === "Cancelled" ? (
             <View
@@ -256,7 +396,7 @@ export default function Dashboard() {
                 <View className="bg-accent/10 p-2 rounded-lg mr-3">
                   <Ionicons name="refresh-circle" size={24} color="green" />
                 </View>
-                <View>
+                <View className="flex-1">
                   <Text
                     className={`${
                       isDarkMode ? "text-white" : "text-text-primary"

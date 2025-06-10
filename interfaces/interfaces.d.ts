@@ -29,6 +29,7 @@ interface membershipDetails {
   rateValidity: string;
   trainerFirstName: string;
   trainerLastName: string;
+  trainerId: string;
   start: Date;
   end: Date;
   isRegular: number;
@@ -181,4 +182,38 @@ interface ScheduleSlot {
   endTime: string;
   clientName?: string;
   isAvailable: boolean;
+}
+
+// Message and Chat interfaces
+interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderType: "trainer" | "client";
+  content: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+interface Conversation {
+  id: string;
+  clientId: string;
+  clientName: string;
+  clientAvatar?: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+  isOnline: boolean;
+}
+
+interface ClientInfo {
+  id: string;
+  name: string;
+  avatar?: string;
+  isOnline: boolean;
+  lastSeen?: string;
+}
+
+interface MessageServiceSubscription {
+  unsubscribe: () => void;
 }

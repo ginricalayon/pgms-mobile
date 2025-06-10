@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LoadingView } from "@/components/common/LoadingView";
 import { ErrorView } from "@/components/common/ErrorView";
 import { trainerService } from "@/services/trainerService";
+import { messageService } from "@/services/messageService";
 import { onRetry } from "@/utils/onRetry";
 
 export default function TrainerDashboard() {
@@ -25,6 +26,7 @@ export default function TrainerDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [trainerStats, setTrainerStats] = useState<TrainerStats | null>(null);
 
@@ -42,10 +44,25 @@ export default function TrainerDashboard() {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const conversations = await messageService.getConversations();
+      const totalUnread = conversations.reduce(
+        (total, conv) => total + (conv.unreadCount || 0),
+        0
+      );
+      setUnreadCount(totalUnread);
+    } catch (err) {
+      // Silently fail to avoid disrupting the main dashboard
+      console.log("Failed to fetch unread count:", err);
+    }
+  };
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setError(null);
     fetchTrainerData();
+    fetchUnreadCount();
   }, []);
 
   useEffect(() => {
@@ -55,6 +72,18 @@ export default function TrainerDashboard() {
     }
 
     fetchTrainerData();
+    fetchUnreadCount();
+
+    // Subscribe to conversation updates for real-time unread count
+    const cleanup = messageService.subscribeToConversations((conversations) => {
+      const totalUnread = conversations.reduce(
+        (total, conv) => total + (conv.unreadCount || 0),
+        0
+      );
+      setUnreadCount(totalUnread);
+    });
+
+    return cleanup;
   }, [user]);
 
   if (loading && !refreshing) {
@@ -74,7 +103,7 @@ export default function TrainerDashboard() {
     <Container>
       <ScrollView
         className={`flex-1 px-4 py-6 ${
-          Platform.OS === "android" ? "mb-24" : "mb-16"
+          Platform.OS === "android" ? "mb-16" : "mb-16"
         }`}
         refreshControl={
           <RefreshControl
@@ -105,14 +134,21 @@ export default function TrainerDashboard() {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.navigate("/(trainer-tabs)/profile" as any)}
-              className="p-2"
+              onPress={() => router.push("screens/message" as any)}
+              className="p-2 relative"
             >
               <Ionicons
                 name="chatbubble-ellipses-outline"
                 size={30}
                 color={isDarkMode ? "#FFFFFF" : "#2563EB"}
               />
+              {unreadCount > 0 && (
+                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center px-1">
+                  <Text className="text-white text-xs font-bold">
+                    {unreadCount > 9 ? "9+" : unreadCount.toString()}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -276,13 +312,15 @@ export default function TrainerDashboard() {
                 size={24}
                 color={isDarkMode ? "#60A5FA" : "#2563EB"}
               />
-              <Text
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-text-secondary"
-                } text-sm ml-2`}
-              >
-                Available Sessions
-              </Text>
+              <View className="flex-1">
+                <Text
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-text-secondary"
+                  } text-sm ml-2`}
+                >
+                  Available Sessions
+                </Text>
+              </View>
             </View>
             <Text
               className={`${
@@ -300,7 +338,7 @@ export default function TrainerDashboard() {
             isDarkMode ? "bg-gray-800" : "bg-white"
           } rounded-xl p-6 shadow-sm border ${
             isDarkMode ? "border-gray-700" : "border-light-200"
-          }`}
+          } mb-16`}
         >
           <Text
             className={`${

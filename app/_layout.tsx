@@ -65,6 +65,18 @@ export default function RootLayout() {
                 name="screens/renew/Payment"
                 options={{ headerShown: true, title: "Payment" }}
               />
+              <Stack.Screen
+                name="screens/message/index"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="screens/message/chat/[clientId]"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="screens/message/new/index"
+                options={{ headerShown: false }}
+              />
             </Stack>
           </ThemeProvider>
         </AuthProvider>

@@ -91,6 +91,11 @@ export default function TrainerClients() {
     }
   };
 
+  const handleMessagePress = (membershipId: string) => {
+    setModalVisible(false);
+    router.push(`/screens/message/chat/${membershipId}`);
+  };
+
   if (loading && !refreshing) {
     return <LoadingView color={isDarkMode ? "#808080" : "#2563EB"} />;
   }
@@ -385,6 +390,9 @@ export default function TrainerClients() {
                         className={`${
                           isDarkMode ? "bg-blue-600" : "bg-blue-500"
                         } px-4 py-2 rounded-full flex-row items-center`}
+                        onPress={() =>
+                          handleMessagePress(selectedClient.membershipId)
+                        }
                       >
                         <Ionicons
                           name="chatbubble-outline"
