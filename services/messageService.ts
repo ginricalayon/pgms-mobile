@@ -1,6 +1,7 @@
-import { API_URL } from "./config/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { io, Socket } from "socket.io-client";
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 class MessageService {
   private socket: Socket | null = null;

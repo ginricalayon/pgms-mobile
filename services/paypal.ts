@@ -1,10 +1,8 @@
 import axios from "axios";
 
-const PAYPAL_API_URL = "https://api-m.sandbox.paypal.com";
-const PAYPAL_CLIENT_ID =
-  "AfQlYUz6omwna7XDh1DU4thyTnvdxAOMjoSheac8tqoHHBSiVQDHausDhnw2vlLTxVopqLdMkD08MmKk";
-const PAYPAL_SECRET =
-  "EFb-BkX2fltQO2P7hP68hNBje0_k5A9nIxIDZ5oKRYGX7FuJWkw7KJcz6zKO0FRNqIDSq9NlkTpUWOCw";
+const PAYPAL_API_URL = process.env.EXPO_PUBLIC_PAYPAL_API_URL;
+const PAYPAL_CLIENT_ID = process.env.EXPO_PUBLIC_PAYPAL_CLIENT_ID;
+const PAYPAL_SECRET = process.env.EXPO_PUBLIC_PAYPAL_SECRET;
 
 const NGROK_URL = "https://dear-snapper-explicitly.ngrok-free.app";
 const RETURN_URL = `${NGROK_URL}/success.html`;

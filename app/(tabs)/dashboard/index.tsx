@@ -150,23 +150,25 @@ export default function Dashboard() {
                 color={isDarkMode ? "#FCD34D" : "#2563EB"}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push("screens/message" as any)}
-              className="p-2 relative"
-            >
-              <Ionicons
-                name="chatbubble-ellipses-outline"
-                size={30}
-                color={isDarkMode ? "#FFFFFF" : "#2563EB"}
-              />
-              {unreadCount > 0 && (
-                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center px-1">
-                  <Text className="text-white text-xs font-bold">
-                    {unreadCount > 9 ? "9+" : unreadCount.toString()}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
+            {membershipDetailsData?.user?.trainerId && (
+              <TouchableOpacity
+                onPress={() => router.push("screens/message" as any)}
+                className="p-2 relative"
+              >
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={30}
+                  color={isDarkMode ? "#FFFFFF" : "#2563EB"}
+                />
+                {unreadCount > 0 && (
+                  <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center px-1">
+                    <Text className="text-white text-xs font-bold">
+                      {unreadCount > 9 ? "9+" : unreadCount.toString()}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -284,7 +286,9 @@ export default function Dashboard() {
 
           {/* Your Personal Trainer Section */}
           {membershipDetailsData?.user?.trainerFirstName &&
-            membershipDetailsData?.user?.trainerLastName && (
+            membershipDetailsData?.user?.trainerLastName &&
+            membershipDetailsData?.user?.status !== "Cancelled" &&
+            membershipDetailsData?.user?.status !== "Expired" && (
               <View
                 className={`${
                   isDarkMode ? "bg-gray-800" : "bg-white"

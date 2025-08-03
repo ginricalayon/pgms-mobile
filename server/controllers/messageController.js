@@ -104,7 +104,7 @@ exports.getConversations = async (req, res) => {
 
     // Clean up inactive member conversations first
     try {
-      await cleanupInactiveMemberConversations();
+      await exports.cleanupInactiveMemberConversations();
     } catch (cleanupError) {
       console.error(
         "Warning: Failed to cleanup inactive conversations:",
@@ -152,11 +152,11 @@ exports.getConversations = async (req, res) => {
       params = [userId];
     } else {
       // Member viewing their conversation with trainer (if membership is active)
-      const memberCheck = await checkMemberMessagingStatus(userId);
+      const memberCheck = await exports.checkMemberMessagingStatus(userId);
 
       if (!memberCheck.canMessage) {
         // Clean up their conversations and return empty array
-        await cleanupInactiveMemberConversations(userId);
+        await exports.cleanupInactiveMemberConversations(userId);
         return res.json([]);
       }
 
@@ -289,10 +289,10 @@ exports.getMessagesByClientId = async (req, res) => {
 
     // Check if member can message (if user is a member)
     if (userType === "member") {
-      const memberCheck = await checkMemberMessagingStatus(userId);
+      const memberCheck = await exports.checkMemberMessagingStatus(userId);
       if (!memberCheck.canMessage) {
         // Clean up their conversations
-        await cleanupInactiveMemberConversations(userId);
+        await exports.cleanupInactiveMemberConversations(userId);
         return res.status(403).json({
           error: "Access denied",
           reason: memberCheck.reason,
@@ -303,10 +303,10 @@ exports.getMessagesByClientId = async (req, res) => {
 
     // If trainer is accessing client messages, check if client can message
     if (userType === "trainer") {
-      const clientCheck = await checkMemberMessagingStatus(clientId);
+      const clientCheck = await exports.checkMemberMessagingStatus(clientId);
       if (!clientCheck.canMessage) {
         // Clean up client's conversations and return empty messages
-        await cleanupInactiveMemberConversations(clientId);
+        await exports.cleanupInactiveMemberConversations(clientId);
         return res.json([]);
       }
     }
@@ -453,10 +453,10 @@ exports.sendMessage = async (req, res) => {
 
     // Check if sender (if member) can message
     if (userType === "member") {
-      const memberCheck = await checkMemberMessagingStatus(userId);
+      const memberCheck = await exports.checkMemberMessagingStatus(userId);
       if (!memberCheck.canMessage) {
         // Clean up their conversations
-        await cleanupInactiveMemberConversations(userId);
+        await exports.cleanupInactiveMemberConversations(userId);
         return res.status(403).json({
           error: "Cannot send message",
           reason: memberCheck.reason,
@@ -467,10 +467,12 @@ exports.sendMessage = async (req, res) => {
 
     // Check if recipient (if member) can receive messages
     if (userType === "trainer") {
-      const recipientCheck = await checkMemberMessagingStatus(recipientId);
+      const recipientCheck = await exports.checkMemberMessagingStatus(
+        recipientId
+      );
       if (!recipientCheck.canMessage) {
         // Clean up recipient's conversations
-        await cleanupInactiveMemberConversations(recipientId);
+        await exports.cleanupInactiveMemberConversations(recipientId);
         return res.status(403).json({
           error: "Cannot send message to this member",
           reason: recipientCheck.reason,
@@ -712,7 +714,7 @@ exports.cleanupMemberConversations = async (req, res) => {
   try {
     const { memberId } = req.body;
 
-    const result = await cleanupInactiveMemberConversations(memberId);
+    const result = await exports.cleanupInactiveMemberConversations(memberId);
 
     // Emit socket events to notify affected users
     const io = req.app.get("io");
@@ -751,7 +753,7 @@ exports.cleanupMemberConversations = async (req, res) => {
 // Utility function to run general cleanup (can be called periodically)
 exports.runGeneralCleanup = async (req, res) => {
   try {
-    const result = await cleanupInactiveMemberConversations();
+    const result = await exports.cleanupInactiveMemberConversations();
 
     // Emit socket events to notify affected users
     const io = req.app.get("io");
